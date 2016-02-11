@@ -1,0 +1,17 @@
+web_jsie/static/admin/*
+web_jsie/static/xadmin/*
+
+*.log
+*.pot
+*.pyc
+*~
+*.swp
+*tmp
+*.ini
+*.pid
+*DS_Store
+*.csv
+.project
+.pydevproject
+.settings/locals.py
+.idea
