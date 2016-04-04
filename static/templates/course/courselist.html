@@ -1,0 +1,28 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-2">
+      <course-sub-nav></course-sub-nav>
+    </div>
+    <div class="col-md-9">
+      <ol class="breadcrumb course-tools">
+        <li>
+          <a href="">全部</a>
+        </li>
+      </ol>
+      <div class="row course-list">
+        <div class="col-md-4" ng-repeat="item in courseCtrl.course_list">
+          <a class="thumbnail course-list-item" href="" target="__blank">
+            <img ng-src="{{ item.poster }}">
+            <div class="caption"><h5>{{ item.title }}</h5>
+              <div class="info">
+                <span class="l ">{{ item.updatetime }}更新</span>
+                <!-- <span class="r">学习人数</span> -->
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+        
+    </div>
+  </div>
+</div>

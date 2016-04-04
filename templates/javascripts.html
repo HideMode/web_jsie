@@ -1,0 +1,42 @@
+{% load compress %}
+{% load staticfiles %}
+
+<!-- {% compress js %} -->
+<script type="text/javascript" src="{% static 'bower_components/jquery/dist/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/underscore/underscore.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'bower_components/angular/angular.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/angular-bootstrap/ui-bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/angular-animate/angular-animate.js' %}"></script>
+<!-- <script type="text/javascript" src="{% static 'bower_components/angular-route/angular-route.js' %}"></script> -->
+<script type="text/javascript" src="{% static 'bower_components/angular-ui-router/release/angular-ui-router.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'bower_components/angular-messages/angular-messages.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/angular-aria/angular-aria.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/angular-cookies/angular-cookies.js' %}"></script>
+<!--
+<script type="text/javascript" src="{% static 'bower_components/ngDialog/js/ngDialog.js' %}"></script>
+<script type="text/javascript" src="{% static 'lib/snackbarjs/snackbar.min.js' %}"></script>
+-->
+
+<!-- authentication -->
+<script type="text/javascript" src="{% static 'javascripts/app.config.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/app.routes.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/layout/layout.module.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/layout/controllers/navbar.controller.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/authentication/authentication.module.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/authentication/service/authentication.service.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/authentication/controllers/register.controller.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/authentication/controllers/login.controller.js' %}"></script>
+
+<!-- course -->
+<script type="text/javascript" src="{% static 'javascripts/course/course.module.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/course/service/course.service.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/course/controllers/course.controller.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/course/controllers/subnav.controller.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/course/course.directive.js' %}"></script>
+
+
+<script type="text/javascript" src="{% static 'javascripts/app.js' %}"></script>
+
+<!-- {% endcompress %} -->

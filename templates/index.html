@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+  <title>翻转课堂教学平台</title>
+
+  <base href="/" />
+
+  {% include 'stylesheets.html' %}
+</head>
+
+<body layout='row'>
+    {% include 'navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+        <div class="col-xs-12 ui-view"></div>
+        </div>
+    </div>
+  {% include 'javascripts.html' %}
+</body>
+</html>

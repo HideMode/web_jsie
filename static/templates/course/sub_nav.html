@@ -1,0 +1,20 @@
+<nav class="menu course-silderbar">
+  <h3 class="menu-heading">
+  课程
+  </h3>
+  <div class="menu-item selected">
+    全部
+  </div>
+  <div class="menu-item" ng-repeat="item in vm.subnav_list" ng-cloak>
+    <a href="">{{item.title}}</a>
+      <div class="course-subcategory" ng-if="item.sub.length">
+        <div class="course-subcategory-bg"></div>
+        <ul>
+          <li ng-repeat="s in item.sub">
+            <a href="">{{s.title}}</a>
+          </li>
+        </ul>
+      </div>
+    
+  </div>
+</nav>

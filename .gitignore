@@ -1,6 +1,7 @@
-web_jsie/static/admin/*
-web_jsie/static/xadmin/*
-
+web_jsie/static/
+static/bower_components/*
+*/__pycache__
+*/migrations
 *.log
 *.pot
 *.pyc
@@ -13,5 +14,22 @@ web_jsie/static/xadmin/*
 *.csv
 .project
 .pydevproject
-.settings/locals.py
+*/settings
 .idea
+# Python compiled byte code
+*.pyc
+
+# SQLite3 database
+*.sqlite3
+
+# Node modules
+node_modules/
+
+# Bower components
+static/bower_components/
+
+# Uglified JavaScript
+dist/
+
+# Staticfiles
+staticfiles/
