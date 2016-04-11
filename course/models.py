@@ -16,8 +16,8 @@ class Category(models.Model):
     position = models.IntegerField(u'顺序')
 
     class Meta:
-        verbose_name = u'课程分类'
-        verbose_name_plural = u'课程分类管理'
+        verbose_name = u'医疗分类'
+        verbose_name_plural = u'医疗分类管理'
 
     def __unicode__(self):
         return '{0}'.format(self.title)
@@ -31,8 +31,8 @@ class SubCategory(models.Model):
     position = models.IntegerField(u'顺序')
 
     class Meta:
-        verbose_name = u'课程子分类'
-        verbose_name_plural = u'课程子分类管理'
+        verbose_name = u'医疗子分类'
+        verbose_name_plural = u'医疗子分类管理'
 
     def __unicode__(self):
         return '{0}'.format(self.title)
@@ -40,7 +40,7 @@ class SubCategory(models.Model):
 
 class Course(models.Model):
     """
-    课程model
+    医疗model
     """
     title = models.CharField(u'标题', unique=True, max_length=20)
     author = models.ForeignKey('authentication.Account', verbose_name=u'作者')
@@ -52,8 +52,8 @@ class Course(models.Model):
     update_at = models.DateTimeField(u'更新时间', auto_now_add=True)
 
     class Meta:
-        verbose_name = u'课程'
-        verbose_name_plural = u'课程管理'
+        verbose_name = u'医疗'
+        verbose_name_plural = u'医疗管理'
 
     def __unicode__(self):
         return '{0}-{1}'.format(self.title, self.author)
@@ -66,8 +66,8 @@ class Chapter(models.Model):
     """
     课程章节
     """
-    title = models.CharField(u'章节标题', max_length=20)
-    course = models.ForeignKey('Course', verbose_name=u"课程", related_name='chapters')
+    title = models.CharField(u'医疗器械名称', max_length=20)
+    course = models.ForeignKey('Course', verbose_name=u"医疗", related_name='chapters')
     upload_at = models.DateTimeField(u'上传时间', auto_now_add=True)
     video = FileBrowseField(u'视频地址', directory="course/video/", max_length=200, null=True, blank=True)
     attachment = FileBrowseField(u'附件', directory="course/attachment/", max_length=200, null=True, blank=True)
@@ -75,8 +75,8 @@ class Chapter(models.Model):
     operator = models.ForeignKey('authentication.Account', verbose_name=u"操作人")
 
     class Meta:
-        verbose_name = u'课程章节'
-        verbose_name_plural = u'课程章节管理'
+        verbose_name = u'医疗器械名称'
+        verbose_name_plural = u'医疗器械名称管理'
 
     def __unicode__(self):
         return '{0}-{1}'.format(self.course.title, self.title)
@@ -116,7 +116,7 @@ post_save.connect(chapter_post_save,sender=Chapter)
 
 class Comment(models.Model):
     parent = models.ForeignKey('self', verbose_name=u'主评论', null=True)
-    chapter = models.ForeignKey('Chapter', verbose_name=u'课程章节')
+    chapter = models.ForeignKey('Chapter', verbose_name=u'医疗器械')
     text = models.CharField(u'内容', max_length=300)
     creator = models.ForeignKey('authentication.Account', verbose_name=u'评论用户', related_name="comment_owner")
     create_at = models.DateTimeField(u'评论创建时间')

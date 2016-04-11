@@ -148,7 +148,7 @@ REST_FRAMEWORK = {
     )
 }
 
-GRAPPELLI_ADMIN_TITLE = u'翻转课堂教学平台后台管理系统'
+GRAPPELLI_ADMIN_TITLE = u'移动医疗网站管理系统'
 
 
 FILEBROWSER_DIRECTORY = 'uploads/'
