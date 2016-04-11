@@ -36,8 +36,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = (
     'grappelli',
-    # 'material',
-    # 'material.admin',
+    'filebrowser',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -150,3 +149,6 @@ REST_FRAMEWORK = {
 }
 
 GRAPPELLI_ADMIN_TITLE = u'翻转课堂教学平台后台管理系统'
+
+
+FILEBROWSER_DIRECTORY = 'uploads/'

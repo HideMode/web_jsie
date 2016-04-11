@@ -5,10 +5,28 @@
         .module('app.course.controllers')
         .directive("courseSubNav", ['Course', '$timeout', function(Course, $timeout) {
 
-            function moveToActive(bottom) {
-                $("li.navbar-current").stop(!0, !0).animate({
-                    bottom: bottom
-                }, "fast")
+            function changeToolsTitle() {
+                //页面导航
+                var data = {
+                    cateId: 0,
+                    subCateId: 0,
+                    pageSize: 15,
+                    // page: page,
+                }
+                var title;
+                var currObj = $(".course-silderbar .selected")
+                var title1 = currObj.find("a:first").text();
+                data.cateId = currObj.find("a:first").data('cateid') || 0;
+                title = "<li><a>" + title1 + "</a></li>"
+                var currSubObj = currObj.find("ul li.cur")
+                if (currSubObj) {
+                    var title2 = currSubObj.find("a:first").text()
+                    data.subCateId = currSubObj.find("a:first").data("subid");
+                    if (title2) {
+                        title += '<li><a>' + title2 + '</a></li>'
+                    }
+                }
+                $(".course-tools").html(title)
             }
             var setFixed = function() {
                 var t = $(document).scrollTop();
@@ -64,7 +82,7 @@
                     $(".menu-item").removeClass('selected');
                     obj.addClass('selected');
                     obj.find(".course-subcategory").show()
-
+                    changeToolsTitle();
                     // loadCourse();
                 })
                 $(".course-silderbar").on("mouseenter", ".menu-item", function(event) {
@@ -101,7 +119,8 @@
                     var $this = $(this);
                     $this.parent('li').addClass('cur');
                     $this.closest('.menu-item').addClass('selected')
-                        // loadCourse();
+                    changeToolsTitle();
+                    // loadCourse();
                 });
                 $(window).scroll(setFixed)
                 setFixed();
@@ -111,7 +130,15 @@
             return {
                 restrict: 'EA',
                 templateUrl: '/static/templates/course/sub_nav.html',
-                controller: 'SubNavController',
+                controller: function($scope, $element, $attrs) {
+                    var vm = this;
+                    // all filter
+                    // var vm.selected;
+
+                    Course.getSubNav().then(function(data) {
+                        vm.subnav_list = data;
+                    });
+                },
                 controllerAs: 'vm',
                 link: function(scope) {
                     bindEvent(scope);
@@ -119,20 +146,3 @@
             }
         }])
 })();
-
-
-        // //页面导航
-        // var title;
-        // var currObj = $(".course-sidebar .selected")
-        // var title1 = currObj.find("a:first").text()
-        // data.cateId = currObj.find("a:first").data('cateid')
-        // title = "<li><a>" + title1 + "</a></li>"
-        // var currSubObj = currObj.find("ul li.cur")
-        // if (currSubObj) {
-        //     var title2 = currSubObj.find("a:first").text()
-        //     data.subCateId = currSubObj.find("a:first").data("subid");
-        //     if (title2) {
-        //         title += '<li><a>' + title2 + '</a></li>'
-        //     }
-        // }
-        // $(".course-tools").html(title)

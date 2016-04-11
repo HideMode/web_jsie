@@ -3,6 +3,8 @@
     angular
         .module('app.course', [
             'app.course.controllers',
+            'app.course.chapter.controllers',
+            'app.course.chapter.view.controllers',
             'app.course.services'
         ]);
 

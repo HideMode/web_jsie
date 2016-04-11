@@ -1,0 +1,77 @@
+<!-- if info.prev == -1 -->
+<a ng-if="vm.link.prev == -1" href="javascript:void(0)" class="left previous-control" data-slide="prev" role="button" uib-tooltip="没有了" tooltip-placement="bottom" tooltip-append-to-body='true'>
+  <span aria-hidden="true" class="glyphicon glyphicon-chevron-left"></span>
+</a>
+<!-- else -->
+<a ng-if="vm.link.prev != -1" ui-sref="view({id: vm.link.prev})" ui-sref-opts="{reload: true}" class="left previous-control" data-slide="prev" role="button" uib-tooltip="上一节" tooltip-placement="bottom" tooltip-append-to-body='true'>
+  <span aria-hidden="true" class="glyphicon glyphicon-chevron-left"></span>
+</a>
+<!-- if info.next == -1 -->
+<a ng-if="vm.link.next == -1" href="javascript:void(0)" class="right next-control" data-slide="next" role="button" uib-tooltip="没有了" tooltip-placement="bottom" tooltip-append-to-body='true'>
+  <span aria-hidden="true" class="glyphicon glyphicon-chevron-right"></span>
+</a>
+<!-- else -->
+<a ng-if="vm.link.next != -1" ui-sref="view({id: vm.link.next})" ui-sref-opts="{reload: true}" class="right next-control" data-slide="next" role="button" uib-tooltip="下一节" tooltip-placement="bottom" tooltip-append-to-body='true'>
+  <span aria-hidden="true" class="glyphicon glyphicon-chevron-right"></span>
+</a>
+<div class="container">
+  <div class="main-content">
+    <h4>{{vm.detail.title}}</h4>
+    <div ng-if="!!vm.detail.video" class="embed-responsive embed-responsive-16by9">
+    <video class="embed-responsive-item" ng-src="{{vm.detail.video}}" controls="controls" preload autoplay></video>
+  </div>
+  <uib-accordion ng-if="!!vm.detail.content">
+    <uib-accordion-group heading="内容">
+      <div ng-bind-html="vm.detail.content"></div>
+    </uib-accordion-group>
+  </uib-accordion>
+</div>
+<div class="row">
+  <div class="col-md-9">
+    <div class="panel panel-success panel_course_comment">
+      <div class="panel-heading">
+        <h3 class="panel-title">评论</h3>
+      </div>
+      <div class="panel-body">
+        <div class="">
+          <textarea id="textarea"></textarea>
+          <div class="form-command">
+            <span><button ng-if="!vm.is_authenticated" class="submit-button btn btn-warning" disabled="">登陆后提交</button></span>
+            <span><button ng-if="vm.is_authenticated" class="submit-button btn btn-primary">发布评论</button></span>
+          </div>
+        </div>
+        <!-- </form> -->
+        <div class="comment-list">
+          <div class="comment-title">
+            <h3>
+              <span class="comment-count">N条评论</span>
+            </h3>
+          </div>
+          <div class="media item-comment">
+            <div class="media-left">
+              <a href="#"></a>
+            </div>
+            <div class="media-body">
+              <h4 class="media-heading comment-author-wrap">
+              <a href="#"></a>
+              <strong>，个人签名</strong>
+              </h4>
+              <div class="comment-content">{{comment.content}}</div>
+              <div class="comment-foot comment-item-meta">
+                <div class="meta-panel">
+                  <span class="meta-time">发布于{{ comment.create_at | date:'yyyy-M-d H:m' }}</span>
+                  <a href="javascript:;" class="meta-item toggle-comment" role="button" data-commentid="#{comment._id}" data-toid="#{comment.from._id}" data-num="#{comment.reply.length}">
+                    <span class="glyphicon glyphicon-comment">添加评论</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+  </div>
+</div>
+</div>

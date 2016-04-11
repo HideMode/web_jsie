@@ -7,7 +7,9 @@
 
 <script type="text/javascript" src="{% static 'bower_components/angular/angular.js' %}"></script>
 <script type="text/javascript" src="{% static 'bower_components/angular-bootstrap/ui-bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bower_components/angular-animate/angular-animate.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/angular-sanitize/angular-sanitize.js' %}"></script>
 <!-- <script type="text/javascript" src="{% static 'bower_components/angular-route/angular-route.js' %}"></script> -->
 <script type="text/javascript" src="{% static 'bower_components/angular-ui-router/release/angular-ui-router.js' %}"></script>
 
@@ -20,7 +22,7 @@
 -->
 
 <!-- authentication -->
-<script type="text/javascript" src="{% static 'javascripts/app.config.js' %}"></script>
+<!-- <script type="text/javascript" src="{% static 'javascripts/app.config.js' %}"></script> -->
 <script type="text/javascript" src="{% static 'javascripts/app.routes.js' %}"></script>
 <script type="text/javascript" src="{% static 'javascripts/layout/layout.module.js' %}"></script>
 <script type="text/javascript" src="{% static 'javascripts/layout/controllers/navbar.controller.js' %}"></script>
@@ -33,10 +35,12 @@
 <script type="text/javascript" src="{% static 'javascripts/course/course.module.js' %}"></script>
 <script type="text/javascript" src="{% static 'javascripts/course/service/course.service.js' %}"></script>
 <script type="text/javascript" src="{% static 'javascripts/course/controllers/course.controller.js' %}"></script>
-<script type="text/javascript" src="{% static 'javascripts/course/controllers/subnav.controller.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/course/controllers/chapter.controller.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/course/controllers/view.controller.js' %}"></script>
 <script type="text/javascript" src="{% static 'javascripts/course/course.directive.js' %}"></script>
 
 
 <script type="text/javascript" src="{% static 'javascripts/app.js' %}"></script>
+<script src="{% static 'bower_components/tinymce/tinymce.min.js' %}"></script>
 
 <!-- {% endcompress %} -->

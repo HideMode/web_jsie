@@ -475,7 +475,7 @@ cursor: pointer;
 .chapter h3{
   color: #303538;
 }
-.chapter h3 {
+.chapter a {
   background: none repeat scroll 0 0 #f2f7fa;
   cursor: pointer;
   font-family: 微软雅黑;
@@ -485,12 +485,13 @@ cursor: pointer;
   margin-bottom: 10px;
   overflow: hidden;
   padding: 0 13px 0 0;
+  display: block;
 }
-.chapter h3 span {
-  color: #b4bbbf;
+.chapter a span {
+  /*color: #b4bbbf;*/
   cursor: pointer;
   display: block;
-  float: right;
+  /*float: right;*/
   font-weight: bold;
   text-align: center;
   width: 10px;
@@ -522,10 +523,16 @@ cursor: pointer;
 .chapter .sub li:hover {
   background: none repeat scroll 0 0 #f8f8f8;
 }
-.chapter h3:hover {
+.chapter a:hover {
   background: #d3dce0;
 }
-.unopen h3 {
+.list-float {
+  float:left;
+  top:12px; 
+  left:5px;
+  color:green;
+}
+.unopen a {
   background: none repeat scroll 0 0 #f2f7fa;
   cursor: pointer;
   font-family: 微软雅黑;
@@ -536,7 +543,7 @@ cursor: pointer;
   overflow: hidden;
   padding: 0 13px 0 0;
 }
-.unopen h3 {
+.unopen a {
 color: #909b9e;
 }
 .unopen em {
@@ -617,6 +624,10 @@ color: #909b9e;
 }
 .main-content h4 {
   text-align: center;
+}
+.main-content .video-section{
+  margin: 10px;
+  position: relative;
 }
 .main-content #text-body{
   min-height: 400px;
@@ -775,9 +786,7 @@ color: #909b9e;
   padding: 10px 0;
   text-align: right;
 }
-.view-comment-form .submit-button {
-  
-}
+
 .comment-title {
   border-top: 1px solid #eee;
   line-height: 24px;

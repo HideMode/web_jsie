@@ -11,11 +11,11 @@
       </ol>
       <div class="row course-list">
         <div class="col-md-4" ng-repeat="item in courseCtrl.course_list">
-          <a class="thumbnail course-list-item" href="" target="__blank">
+          <a class="thumbnail course-list-item" ui-sref="chapter({id: item.id})">
             <img ng-src="{{ item.poster }}">
             <div class="caption"><h5>{{ item.title }}</h5>
               <div class="info">
-                <span class="l ">{{ item.updatetime }}更新</span>
+                <span class="l ">{{ item.update_at | date: 'yyyy-M-d H:m' }}更新</span>
                 <!-- <span class="r">学习人数</span> -->
               </div>
             </div>

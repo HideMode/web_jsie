@@ -3,15 +3,15 @@
   课程
   </h3>
   <div class="menu-item selected">
-    全部
+    <a href="">全部</a>
   </div>
   <div class="menu-item" ng-repeat="item in vm.subnav_list" ng-cloak>
-    <a href="">{{item.title}}</a>
+    <a href="" data-cateid="{{ item.id }}")>{{item.title}}</a>
       <div class="course-subcategory" ng-if="item.sub.length">
         <div class="course-subcategory-bg"></div>
         <ul>
           <li ng-repeat="s in item.sub">
-            <a href="">{{s.title}}</a>
+            <a data-subid="{{ s.id }}" href="">{{s.title}}</a>
           </li>
         </ul>
       </div>

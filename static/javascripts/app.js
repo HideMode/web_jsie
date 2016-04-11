@@ -4,7 +4,8 @@
         .module('app', [
             'ui.bootstrap',
             'app.routes',
-            'app.config',
+            'ngAnimate',
+            // 'app.config',
             'app.authentication',
             'app.course',
             'app.layout',

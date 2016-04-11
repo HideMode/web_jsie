@@ -23,6 +23,26 @@
                     .error(function(err){
                         d.reject(err);
                     }), d.promise;
+            },
+            getCourseById: function(course_id){
+                var d = $q.defer();
+                return $http.get('/api/v1/courses/'+course_id)
+                        .success(function(data){
+                            d.resolve(data);
+                        })
+                        .error(function(err){
+                            d.reject(err);
+                        }), d.promise;
+            },
+            getCourseChapterById: function(chapter_id){
+                var d = $q.defer();
+                return $http.get('api/v1/chapters/'+chapter_id)
+                        .success(function(data){
+                            d.resolve(data);
+                        })
+                        .error(function(err){
+                            d.reject(err);
+                        }), d.promise;
             }
         };
     }])

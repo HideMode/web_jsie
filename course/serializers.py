@@ -11,17 +11,40 @@ from authentication.serializers import AccountSerializer
 from .models import Category, SubCategory, Course, Chapter, Comment
 
 
+class ChapterBaseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Chapter
+        fields = ('id', 'upload_at', 'title')
+
+
+class ChapterSerializer(serializers.ModelSerializer):
+    video = serializers.CharField(source="get_video_url")
+    attachment = serializers.CharField(source="get_attachment_url")
+    link = serializers.CharField(source="prev_next_index")
+    class Meta:
+        model = Chapter
+        fields = ('id', 'title', 'course', 'upload_at', 'video', 'attachment', 'content', 'link')
+
+
 class CourseSerializer(serializers.ModelSerializer):
     author = AccountSerializer(read_only=True, required=False)
+    poster = serializers.CharField(source='get_image_url')
+    chapters = ChapterBaseSerializer(read_only=True, many=True)
 
     class Meta:
         model = Course
 
-        fields = ('id', 'title', 'author', 'poster', 'summary', 'subcategory', 'create_at')
-        read_only_fields = ('id', 'create_at')
+        fields = ('id', 'title', 'author', 'poster', 'summary', 'subcategory', 'create_at', 
+            'update_at', 'chapters')
 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        depth = 2
+        depth = 3
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        
