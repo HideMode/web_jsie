@@ -8,7 +8,7 @@
 from rest_framework import serializers
 
 from authentication.serializers import AccountSerializer
-from .models import Category, SubCategory, Course, Chapter, Comment
+from .models import Category, SubCategory, Course, Chapter, Comment, Reply
 
 
 class ChapterBaseSerializer(serializers.ModelSerializer):
@@ -44,7 +44,15 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         depth = 3
 
+
 class CommentSerializer(serializers.ModelSerializer):
+    creator = AccountSerializer(read_only=True, required=False)
+    reply_count = serializers.IntegerField(source="reply_len", required=False, read_only=True)
     class Meta:
         model = Comment
-        
+
+
+class ReplySerializer(serializers.ModelSerializer):
+    creator = AccountSerializer(read_only=True, required=False)
+    class Meta:
+        model = Reply

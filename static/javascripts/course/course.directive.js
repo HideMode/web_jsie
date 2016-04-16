@@ -145,4 +145,198 @@
                 }
             }
         }])
+        .directive("tinyMce", ["$compile", "$state", "$location", "Authentication",
+            function($compile, $state, $location, Authentication) {
+                return {
+                    restrict: "EA",
+                    scope: {
+                        chapterId: '@',
+                        addComment: '&'
+                    },
+                    template: '<textarea ng-model="content" id="mce-textarea"></textarea>\
+                            <div class="form-command"><span>\
+                            <button ng-click="redirectToLogin()" ng-show="!is_authenticated" class="submit-button btn btn-warning" \
+                            >登陆后提交</button></span>\
+                            <span><button ng-click="content && createComment()" ng-show="is_authenticated"\
+                             class="submit-button btn" ng-class="{\'btn-warning\': !content, \'btn-primary\': !!content}">发布评论</button></span></div>',
+                    link: function(scope, iElement, attrs) {
+                        tinymce.init({
+                            selector: '#mce-textarea',
+                            menubar: false,
+                            statusbar: false,
+                            setup: function(editor) {
+                                editor.on('change', function(event) {
+                                    var content_text = editor.getContent({
+                                        format: 'text'
+                                    });
+                                    var content = editor.getContent({
+                                        format: 'raw'
+                                    });
+                                    scope.content = content_text.trim() ? content.trim() : "";
+                                    scope.$apply();
+                                });
+                                scope.$watch('content', function(newValue, oldValue) {
+                                    if (newValue == '') {
+                                        editor.setContent('');
+                                    }
+                                })
+                            }
+                        });
+                    },
+                    controller: function($scope, $element, $attrs) {
+                        $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                        $scope.redirectToLogin = function() {
+                            var redirect = $location.url();
+                            $location.url('/login' + '?redirect=' + redirect);
+                        }
+                        $scope.createComment = function() {
+                            $scope.addComment({
+                                content: $scope.content
+                            })
+                            $scope.content = ""
+
+                        }
+                    },
+                    controllerAs: 'vm',
+                };
+            }
+        ])
+        .directive('showReply', ["$compile", 'Course', 'Authentication', 'Comment', 
+            function($compile, Course, Authentication, Comment) {
+            return {
+                restrict: "EA",
+                scope: {
+                    replyCount: '=',
+                    commentId: '@'
+                },
+                link: function(scope, element, attrs) {
+                    var replyftTpl = '<div class="comment-box-input"><div class="form-group">\
+                                        <input type="text" ng-model="content" class="form-control" placeholder="写下你的回复..." required></div>\
+                                        <div class="command">\
+                                        <a ng-show="is_authenticated" class="r btn btn-primary" ng-click="addNew($event)" role="button" id="addNew" href="javascript:void(0)">评论</a>\
+                                        <a class="r command-cancel" name="closeform" href="#">取消</a></div></div></div>';
+
+                    $('.comment-list').delegate('.comment-box-input input.form-control', 'focus', function(event) {
+                        event.preventDefault();
+                        $(this).closest('.comment-box-input').addClass('expanded')
+                    });
+                    $('.comment-list').delegate('.command-cancel', 'click', function(event) {
+                        event.preventDefault();
+                        $(this).closest('.comment-box-input').removeClass('expanded')
+                        var $node = $(this).closest('.comment-box-input')
+                        $node.find('input.form-control').val(null)
+                    });
+                    scope.addNew = function($event){
+                        var $this = $($event.target);
+                        var $node = $this.closest('.comment-box-input');
+                        var $metaParent = $node.closest('.item-comment').find('.comment-item-meta');
+                        var $meta = $metaParent.find('a.meta-item');
+                        var data = {
+                            comment: scope.commentId
+                        }
+                        // var content = $node.find('input.form-control').val();
+                        var content = scope.content;
+                        if (content.trim()) {
+                            data.content = content.trim();
+                            Comment.addReply(data).then(function(data){
+                                scope.replyCount += 1;
+                                $node.remove();
+                            });
+                        }
+                    };
+
+                    element.click(function(e) {
+                        e.stopPropagation()
+                        var num = parseInt(scope.replyCount);
+                        var $node = $(this).closest('.media-body');
+                        if ($node.hasClass('open')) {
+                            $node.removeClass('open')
+                            $node.find('.comment-box').remove();
+                        } else {
+                            $node.addClass('open')
+                            // $(this).html("<span class='glyphicon glyphicon-comment'><span>收起评论")
+                            var $node = $(this).closest('.media-body');
+                            if (num <= 0) {
+                                var hasBox = $node.find('.comment-box-input').length > 0 ? true : false;
+                                if (!hasBox) {
+                                    var temp = $compile(replyftTpl)(scope);
+                                    $node.append(temp);
+                                }
+
+                            } else {
+                                var temp = $compile('<reply-list comment-id="{{commentId}}"></reply-list>')(scope);
+                                $node.append(temp);
+                            }
+                        }
+                    })
+                },
+                controller: function($scope, $element, $attrs) {
+                    $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                }
+            }
+        }])
+        .directive('replyList', ["$compile", '$timeout', 'Comment', 'Authentication', 
+            function($compile, $timeout, Comment, Authentication) {
+            return {
+                restrict: "E",
+                scope: {
+                    commentId: '@'
+                },
+                templateUrl: '/static/templates/course/reply_list.html',
+                replace: true,
+                link: function(scope, element, attrs) {
+                    var replyftTpl_insert = '<div class="comment-box-input"><div class="form-group">\
+                                        <input type="text" class="form-control" placeholder="写下你的评论..." required></div>\
+                                        <div class="command">\
+                                        <a ng-show="is_authenticated" ng-click="addReply($event)" class="r btn btn-primary" role="button" id="addReply" href="javascript:void(0)">评论</a>\
+                                        <a class="r command-cancel" name="closeform" href="#">取消</a></div></div></div>';
+                    $('.comment-list').delegate('.item-reply .toggle-reply', 'click', function(event) {
+                        var $node = $(this).closest('.media-body');
+                        if ($node.find('.comment-box-input').length > 0) {
+                            if ($node.hasClass('open')) {
+                                $node.removeClass('open');
+                            }else{
+                                $node.addClass('open');
+                            }
+                        } else {
+                            var temp = $compile(replyftTpl_insert)(scope);
+                            $(temp).data('reply', $(this).data('reply'))
+                            $node.addClass('open').append(temp);
+                        }
+
+                    });
+                    scope.addReply = function($event){
+                        var $this = $($event.target);
+                        var $node = $this.closest('.comment-box-input');
+                        var $meta = $node.siblings('.reply-item-meta').find('a.meta-item');
+                        console.log($this)
+                        console.log($this.data('reply'))
+                        var data = {
+                            comment: scope.commentId,
+                            // parent: parentId
+                        }
+                        var content = $node.find('input.form-control').val();
+                        if (content.trim()) {
+                            data.content = content.trim();
+                            Comment.addReply(data).then(function(data){
+                                scope.replys.unshift(data);
+                            });
+                            // ajaxHandler.postReply(data, node);
+                        }
+
+                    }
+                },
+                controller: function($scope) {
+                    $scope.onLoad = !0;
+                    $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                    Comment.getReplys($scope.commentId).then(function(data) {
+                        $scope.replys = data;
+                        $timeout(function() {
+                            $scope.onLoad = !1;
+                        }, 500);
+
+                    });
+                }
+            }
+        }]);
 })();

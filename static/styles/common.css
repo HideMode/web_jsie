@@ -25,7 +25,7 @@ ol, ul {
   position:relative;
   width:1000px;
   height:540px;
-  background:url('/images/index1.jpg') no-repeat center center;
+  background:url('/static/images/index1.jpg') no-repeat center center;
 }
 .index_img a.btn{
   position: absolute;
@@ -34,7 +34,7 @@ ol, ul {
 }
 /*ajax-checking*/
 .loading{
-  background-image: url(/images/ajax-loader1.gif);
+  background-image: url("/static/images/ajax-loader1.gif");
   background-position: 95% 50%;
   background-repeat: no-repeat;
 }
@@ -428,7 +428,7 @@ cursor: pointer;
   /*width: 920px;*/
 }
 .course-list .loading {
-  background: url("/images/loading.gif") no-repeat scroll center center rgba(0, 0, 0, 0);
+  background: url("/static/images/loading.gif") no-repeat scroll center center rgba(0, 0, 0, 0);
   height: 52px;
   position: fixed;
   width: 920px;
@@ -444,7 +444,7 @@ cursor: pointer;
   width: 278px;
 }
 .course-list .btn-loading {
-  background: url("/images/loading.gif") no-repeat scroll center center #ffffff;
+  background: url("/static/images/loading.gif") no-repeat scroll center center #ffffff;
   border: 0 none;
   height: 52px;
   overflow: hidden;
@@ -828,7 +828,7 @@ color: #909b9e;
 }
 .comment-box .loading{
   padding: 10px 12px;
-  background: url("/images/ajax-loader1.gif") no-repeat scroll 30% center rgba(0, 0, 0, 0);
+  background: url("/static/images/ajax-loader1.gif") no-repeat scroll 30% center rgba(0, 0, 0, 0);
   height: 40px;
   width: 100%;
   z-index: 2;
@@ -882,6 +882,9 @@ color: #909b9e;
 }
 .item-reply .media-body.open .comment-box-input, .item-reply .media-body.open .comment-box{
   display: block;
+}
+.item-reply .media-body.open .comment-box-input, .item-reply .media-body .comment-box {
+    display: none;
 }
 .comment-box-input.expanded .command {
   display: block;

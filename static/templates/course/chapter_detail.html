@@ -18,7 +18,7 @@
   <div class="main-content">
     <h4>{{vm.detail.title}}</h4>
     <div ng-if="!!vm.detail.video" class="embed-responsive embed-responsive-16by9">
-    <video class="embed-responsive-item" ng-src="{{vm.detail.video}}" controls="controls" preload autoplay></video>
+    <video class="embed-responsive-item" ng-src="{{vm.detail.video}}" controls="controls" preload></video>
   </div>
   <uib-accordion ng-if="!!vm.detail.content">
     <uib-accordion-group heading="内容">
@@ -34,34 +34,30 @@
       </div>
       <div class="panel-body">
         <div class="">
-          <textarea id="textarea"></textarea>
-          <div class="form-command">
-            <span><button ng-if="!vm.is_authenticated" class="submit-button btn btn-warning" disabled="">登陆后提交</button></span>
-            <span><button ng-if="vm.is_authenticated" class="submit-button btn btn-primary">发布评论</button></span>
-          </div>
+          <tiny-mce chapter-id="{{vm.detail.id}}" add-comment="vm.addComment(content)"></tiny-mce>
         </div>
-        <!-- </form> -->
         <div class="comment-list">
           <div class="comment-title">
             <h3>
-              <span class="comment-count">N条评论</span>
+              <span class="comment-count">{{vm.comments.length}}条评论</span>
             </h3>
           </div>
-          <div class="media item-comment">
+          <div class="media item-comment" ng-repeat="comment in vm.comments">
             <div class="media-left">
               <a href="#"></a>
             </div>
             <div class="media-body">
               <h4 class="media-heading comment-author-wrap">
-              <a href="#"></a>
-              <strong>，个人签名</strong>
+              <a href="#">{{ comment.creator.username }}</a>
+              <strong ng-if="!!comment.creator.tagline">,{{comment.creator.tagline}}</strong>
               </h4>
-              <div class="comment-content">{{comment.content}}</div>
+              <div class="comment-content" ng-bind-html="comment.content"></div>
               <div class="comment-foot comment-item-meta">
                 <div class="meta-panel">
                   <span class="meta-time">发布于{{ comment.create_at | date:'yyyy-M-d H:m' }}</span>
-                  <a href="javascript:;" class="meta-item toggle-comment" role="button" data-commentid="#{comment._id}" data-toid="#{comment.from._id}" data-num="#{comment.reply.length}">
-                    <span class="glyphicon glyphicon-comment">添加评论</span>
+                  <a href="javascript:void(0)" class="meta-item toggle-comment" role="button" show-reply reply-count="comment.reply_count" comment-id="{{comment.id}}">
+                    <span ng-show="!comment.reply_count" class="glyphicon glyphicon-comment">添加评论</span>
+                    <span ng-show="!!comment.reply_count">{{comment.reply_count}}条评论</span> 
                   </a>
                 </div>
               </div>

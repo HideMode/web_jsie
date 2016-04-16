@@ -115,9 +115,22 @@ def chapter_post_save(sender, **kw):
 post_save.connect(chapter_post_save,sender=Chapter)
 
 class Comment(models.Model):
-    parent = models.ForeignKey('self', verbose_name=u'主评论', null=True)
+    # parent = models.ForeignKey('self', verbose_name=u'主评论', null=True)
     chapter = models.ForeignKey('Chapter', verbose_name=u'课程章节')
-    text = models.CharField(u'内容', max_length=300)
+    content = models.TextField(u'内容')
     creator = models.ForeignKey('authentication.Account', verbose_name=u'评论用户', related_name="comment_owner")
-    create_at = models.DateTimeField(u'评论创建时间')
+    create_at = models.DateTimeField(u'评论创建时间', auto_now_add=True)
     vote = models.IntegerField(u'赞同数', default=0)
+
+    def reply_len(self):
+        return self.reply_set.count()
+
+class Reply(models.Model):
+    """
+    回复
+    """
+    comment = models.ForeignKey('Comment', verbose_name=u'评论')
+    parent = models.ForeignKey('self', verbose_name=u'回复', null=True, blank=True)
+    content = models.CharField(u'内容', max_length=300)
+    creator = models.ForeignKey('authentication.Account', verbose_name=u'评论用户', related_name="reply_owner")
+    create_at = models.DateTimeField(u'回复创建时间', auto_now_add=True)

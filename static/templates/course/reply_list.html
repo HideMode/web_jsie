@@ -1,0 +1,30 @@
+<div class="comment-box"><div class="arrow"></div>
+  <div ng-show="onLoad" class="loading">正在加载，请稍等</div>
+  <div ng-show="!onLoad" class="item-reply media" ng-repeat="reply in replys" ng-cloak>
+    <div class="media-left">
+      <a class="item-link-avatar" href="javascript:void(0)">
+        <img class="item-img-avatar media-object" width="40" height="40" alt="logo" src="/static/images/logo.jpg">
+      </a>
+    </div>
+    <div class="media-body">
+      <h4 class="media-heading reply-author-wrap">
+        <a href="javascript:void(0)">{{reply.creator.username}}</a>
+          <span ng-if="reply.parent">回复</span><a ng-if="reply.parent" href="#">{{reply.parent.creator.username}}</a>
+      </h4>
+      <div class="comment-content">
+        <p>{{reply.content}}</p>
+      </div>
+      <div class="comment-foot reply-item-meta">
+        <div class="meta-panel">
+          <span class="meta-time">{{reply.create_at | date:'yyyy-M-d H:m' }}</span>
+          <a class="meta-item toggle-reply" data-reply="{{reply.id}}" role="button" href="javascript:void(0)">
+            <span class="glyphicon glyphicon-send">
+              <span>回复</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

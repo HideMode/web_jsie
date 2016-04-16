@@ -3,12 +3,12 @@
 
     angular
         .module('app.authentication.services', ['ngCookies'])
-        .factory('Authentication', ['$cookies', '$http', '$location', function($cookies, $http, $location) {
+        .factory('Authentication', ['$cookies', '$http', '$location', '$state', function($cookies, $http, $location, $state) {
             return {
                 register: register,
                 login: login,
                 logout: logout,
-                isAuthenticatedAccount: isAuthenticatedAccount,
+                isAuthenticatedAccount: isAuthenticatedAccount
                 // setAuthenticateAccount: setAuthenticateAccount,
                 // unauthenticate: unauthenticate
             }
@@ -38,7 +38,10 @@
                 function loginSuccessFn(data, status, headers, config) {
                     setAuthenticateAccount(data.data);
                     var search = $location.search();
-                    window.location = search.redirect || '/';
+                    var url = search.redirect || '/';
+                    // $location.path(unescape(url)).search('redirect', null)
+                    // $state.reload();
+                    window.location = '/'
                 }
 
                 function loginErrorFn(data, status, headers, config) {

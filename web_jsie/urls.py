@@ -5,7 +5,7 @@ from django.conf import settings
 
 from rest_framework_nested import routers
 from authentication.views import AccountViewSet, LoginView, LogoutView
-from course.views import CourseViewSet, CategoryViewSet, ChapterViewSet
+from course.views import CourseViewSet, CategoryViewSet, ChapterViewSet, CommentViewSet, ReplyViewSet
 from .views import IndexView
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from filebrowser.sites import site
@@ -15,6 +15,8 @@ router.register(r'accounts', AccountViewSet)
 router.register(r'courses', CourseViewSet)
 router.register(r'categories', CategoryViewSet)
 router.register(r'chapters', ChapterViewSet)
+router.register(r'comments', CommentViewSet)
+router.register(r'replys', ReplyViewSet)
 
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),

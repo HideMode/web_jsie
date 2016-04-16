@@ -11,7 +11,7 @@
                 templateUrl: '/static/templates/authentication/register.html'
             })
             .state('login', {
-                url: '/login',
+                url: '/login?redirect',
                 controller: 'LoginController',
                 controllerAs: 'loginCtrl',
                 templateUrl: '/static/templates/authentication/login.html'
