@@ -854,16 +854,17 @@ color: #909b9e;
   margin: 5px;
   background: none repeat scroll 0 0 #fbfbfb;
 }
-.comment-box .comment-box-input {
+.comment-box .comment-box-input, .comment-box .comment-box-input-inline{
   padding: 15px;
   background: none repeat scroll 0 0 #fbfbfb;
   border-radius: 0 0 4px 4px;
   position: relative;
 }
-.comment-box .comment-box-input .form-group {
+
+.comment-box .comment-box-input .form-group, .comment-box .comment-box-input-inline .form-group {
   margin: 0;
 }
-.comment-box .comment-box-input.expanded .command {
+.comment-box .comment-box-input.expanded .command, .comment-box .comment-box-input-inline.expanded .command {
   margin-top: 15px;
   display: block;
   line-height: 33px;
@@ -873,20 +874,24 @@ color: #909b9e;
   display: none;
   max-width: 500px;
 }
-.comment-box-input .command {
+.comment-box-input-inline {
+  display: block;
+  max-width: 500px;
+}
+.comment-box-input .command, .comment-box-input-inline .command {
   display: none;
   padding-bottom: 0;
 }
-.item-comment .media-body.open .comment-box-input, .item-comment .media-body.open .comment-box{
+.item-comment .media-body.open >.comment-box-input, .item-comment .media-body.open .comment-box{
   display: block;
 }
-.item-reply .media-body.open .comment-box-input, .item-reply .media-body.open .comment-box{
+.item-reply .reply-body.open .comment-box-input, .item-reply .reply-body.open .comment-box{
   display: block;
 }
-.item-reply .media-body.open .comment-box-input, .item-reply .media-body .comment-box {
-    display: none;
+.item-reply .reply-body .comment-box-input, .item-reply .reply-body .comment-box {
+  display: none;
 }
-.comment-box-input.expanded .command {
+.comment-box-input.expanded .command, .comment-box-input-inline.expanded .command {
   display: block;
   line-height: 33px;
 }
