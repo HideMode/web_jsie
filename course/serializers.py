@@ -54,5 +54,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ReplySerializer(serializers.ModelSerializer):
     creator = AccountSerializer(read_only=True, required=False)
+    parent_creator_name = serializers.CharField(source="parent_creator", required=False, read_only=True)
     class Meta:
         model = Reply

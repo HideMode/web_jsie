@@ -125,12 +125,30 @@ class Comment(models.Model):
     def reply_len(self):
         return self.reply_set.count()
 
+    def __unicode__(self):
+        return '{0}-{1}'.format(self.chapter.title, self.creator.username)
+
+    class Meta:
+        verbose_name = u'课程评论'
+        verbose_name_plural = u'课程评论管理'
+
 class Reply(models.Model):
     """
     回复
     """
     comment = models.ForeignKey('Comment', verbose_name=u'评论')
     parent = models.ForeignKey('self', verbose_name=u'回复', null=True, blank=True)
-    content = models.CharField(u'内容', max_length=300)
+    content = models.CharField(u'内容', max_length=100)
     creator = models.ForeignKey('authentication.Account', verbose_name=u'评论用户', related_name="reply_owner")
     create_at = models.DateTimeField(u'回复创建时间', auto_now_add=True)
+
+    class Meta:
+        verbose_name = u'评论回复'
+        verbose_name_plural = u'评论回复管理'
+
+    def __unicode__(self):
+        parent_creator = self.parent_creator
+        return '{0}回复{1}'.format(self.creator.username, parent_creator)
+
+    def parent_creator(self):
+        return self.parent.creator.username if self.parent else ""

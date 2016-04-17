@@ -211,7 +211,7 @@
                 },
                 link: function(scope, element, attrs) {
                     var replyftTpl = '<div class="comment-box-input"><div class="form-group">\
-                                        <input type="text" ng-model="content" class="form-control" placeholder="写下你的回复..." required></div>\
+                                        <input type="text" ng-maxlength="replymax" ng-model="content" class="form-control" placeholder="写下你的评论..." required></div>\
                                         <div class="command">\
                                         <a ng-show="is_authenticated" class="r btn btn-primary" ng-click="addNew($event)" role="button" id="addNew" href="javascript:void(0)">评论</a>\
                                         <a class="r command-cancel" name="closeform" href="#">取消</a></div></div></div>';
@@ -220,11 +220,17 @@
                         event.preventDefault();
                         $(this).closest('.comment-box-input').addClass('expanded')
                     });
+                    $('.comment-list').delegate('.comment-box-input-inline input.form-control', 'focus', function(event) {
+                        event.preventDefault();
+                        $(this).closest('.comment-box-input-inline').addClass('expanded')
+                    });
                     $('.comment-list').delegate('.command-cancel', 'click', function(event) {
                         event.preventDefault();
-                        $(this).closest('.comment-box-input').removeClass('expanded')
-                        var $node = $(this).closest('.comment-box-input')
+                        $(this).closest('.comment-box-input').removeClass('expanded');
+                        var $node = $(this).closest('.comment-box-input');
+                        var $nodeInline = $(this).closest('.comment-box-input-inline');
                         $node.find('input.form-control').val(null)
+                        $nodeInline.find('input.form-control').val(null)
                     });
                     scope.addNew = function($event){
                         var $this = $($event.target);
@@ -264,7 +270,7 @@
                                 }
 
                             } else {
-                                var temp = $compile('<reply-list comment-id="{{commentId}}"></reply-list>')(scope);
+                                var temp = $compile('<reply-list reply-count="replyCount" comment-id="{{commentId}}"></reply-list>')(scope);
                                 $node.append(temp);
                             }
                         }
@@ -272,6 +278,7 @@
                 },
                 controller: function($scope, $element, $attrs) {
                     $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                    $scope.replymax = 100;
                 }
             }
         }])
@@ -280,61 +287,80 @@
             return {
                 restrict: "E",
                 scope: {
-                    commentId: '@'
+                    commentId: '@',
+                    replyCount: '='
                 },
                 templateUrl: '/static/templates/course/reply_list.html',
                 replace: true,
                 link: function(scope, element, attrs) {
                     var replyftTpl_insert = '<div class="comment-box-input"><div class="form-group">\
-                                        <input type="text" class="form-control" placeholder="写下你的评论..." required></div>\
+                                        <input type="text" ng-maxlength="replymax" ng-model="reply" class="form-control" placeholder="写下你的回复..." required></div>\
                                         <div class="command">\
-                                        <a ng-show="is_authenticated" ng-click="addReply($event)" class="r btn btn-primary" role="button" id="addReply" href="javascript:void(0)">评论</a>\
+                                        <a ng-show="is_authenticated" ng-click="addReply($event)" class="r btn btn-primary" role="button" id="addReply" href="javascript:void(0)">回复</a>\
                                         <a class="r command-cancel" name="closeform" href="#">取消</a></div></div></div>';
-                    $('.comment-list').delegate('.item-reply .toggle-reply', 'click', function(event) {
-                        var $node = $(this).closest('.media-body');
-                        if ($node.find('.comment-box-input').length > 0) {
-                            if ($node.hasClass('open')) {
-                                $node.removeClass('open');
-                            }else{
-                                $node.addClass('open');
-                            }
+                    scope.showInput = function($event){
+                        var $this = $($event.currentTarget);
+                        var $node = $this.closest('.reply-body');
+                        if ($node.find('.comment-box-input').length) {
+                            $node.hasClass('open') ? $node.removeClass('open') : $node.addClass('open');
                         } else {
                             var temp = $compile(replyftTpl_insert)(scope);
-                            $(temp).data('reply', $(this).data('reply'))
-                            $node.addClass('open').append(temp);
+                            $(temp).find('#addReply').data('reply', $this.data('reply'));
+                            $node.append(temp).addClass('open');
                         }
-
-                    });
+                    }
                     scope.addReply = function($event){
                         var $this = $($event.target);
                         var $node = $this.closest('.comment-box-input');
+                        var $mediaBody = $this.closest('.reply-body');
                         var $meta = $node.siblings('.reply-item-meta').find('a.meta-item');
-                        console.log($this)
-                        console.log($this.data('reply'))
                         var data = {
                             comment: scope.commentId,
-                            // parent: parentId
+                            parent: $this.data('reply')
                         }
                         var content = $node.find('input.form-control').val();
                         if (content.trim()) {
                             data.content = content.trim();
                             Comment.addReply(data).then(function(data){
                                 scope.replys.unshift(data);
+                                scope.replyCount += 1;
+                                $node.find('input.form-control').val("");
+                                $mediaBody.removeClass('open');
+
                             });
-                            // ajaxHandler.postReply(data, node);
                         }
 
                     }
+                    scope.addNew = function($event){
+                        var $this = $($event.target);
+                        var $node = $this.closest('.comment-box-input-inline');
+                        var $metaParent = $node.closest('.item-comment').find('.comment-item-meta');
+                        var $meta = $metaParent.find('a.meta-item');
+                        var data = {
+                            comment: scope.commentId
+                        }
+                        // var content = $node.find('input.form-control').val();
+                        var content = scope.content;
+                        if (content.trim()) {
+                            data.content = content.trim();
+                            Comment.addReply(data).then(function(data){
+                                scope.replyCount += 1;
+                                $node.find('input.form-control').val("");
+                                scope.replys.unshift(data);
+                                // $node.remove();
+                            });
+                        }
+                    };
                 },
                 controller: function($scope) {
                     $scope.onLoad = !0;
+                    $scope.replymax = 10
                     $scope.is_authenticated = Authentication.isAuthenticatedAccount();
                     Comment.getReplys($scope.commentId).then(function(data) {
                         $scope.replys = data;
                         $timeout(function() {
                             $scope.onLoad = !1;
                         }, 500);
-
                     });
                 }
             }

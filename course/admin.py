@@ -1,7 +1,7 @@
 # Register your models here.
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from .models import Category, SubCategory, Course, Chapter, Comment
+from .models import Category, SubCategory, Course, Chapter, Comment, Reply
 from filebrowser.settings import ADMIN_THUMBNAIL
 from django.forms.models import BaseInlineFormSet
 
@@ -65,4 +65,18 @@ class CourseAdmin(admin.ModelAdmin):
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Chapter)
 
-admin.site.register(Comment)
+class ReplyInline(admin.TabularInline):
+    model = Reply
+    readonly_fields = ('creator', 'parent', 'create_at')
+    # fields = (... , "position",)
+    # sortable_field_name = "create_at"
+
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('chapter', 'get_content', 'creator', 'create_at')
+    list_filter = ('chapter',)
+    inlines = (ReplyInline,)
+    def get_content(self, obj):
+        return obj.content
+    get_content.allow_tags = True
+
+admin.site.register(Comment, CommentAdmin)
