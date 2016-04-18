@@ -1,7 +1,5 @@
-(function() {
-    'use strict';
-
-    angular
+define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/service", "authentication/service", "course/comment/service"], function(angular) {
+    return angular
         .module('app.course.directives', [])
         .directive("courseSubNav", ['Course', '$timeout', '$window', '$document', function(Course, $timeout, $window, $document) {
 
@@ -78,13 +76,13 @@
                         event.cancelBubble = true;
                     var obj = $(this);
                     $(".menu-item.selected").find('li.cur').removeClass('cur');
-                    if ( $(this).hasClass('first-item') ) {
+                    if ($(this).hasClass('first-item')) {
                         $(".menu-item").removeClass('selected');
                         obj.find(".course-subcategory").show()
                         obj.addClass('selected');
                         changeToolsTitle();
                     }
-                    
+
                     // loadCourse();
                 })
                 $(".course-silderbar").on("mouseenter", ".menu-item", function(event) {
@@ -138,7 +136,7 @@
                     Course.getSubNav().then(function(data) {
                         vm.subnav_list = data;
                     });
-                    vm.changeCategory = function(id){
+                    vm.changeCategory = function(id) {
                         $scope.categoryId = id;
                     };
                 },
@@ -376,4 +374,4 @@
                 }
             }
         ]);
-})();
+})

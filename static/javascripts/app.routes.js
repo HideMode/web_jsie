@@ -1,5 +1,4 @@
-(function () {
-    'use strict';
+define("app/routes", ["angular", "uiRouter"], function(angular) {
     angular
         .module('app.routes', ['ui.router'])
         .config(function($stateProvider, $urlRouterProvider) {
@@ -54,4 +53,4 @@
             })
             $urlRouterProvider.otherwise("/");
         })
-})();
+})

@@ -1,7 +1,6 @@
-(function(){
-    'use strict';
+define("course/chapter/contorller", ["angular", "ngSanitize", "authentication/service", "course/course/service"], function(angular) {
 
-    angular
+    return angular
     .module('app.course.chapter.controllers', ['ngSanitize'])
     .controller('ChapterController', ['Authentication' , 'Course', '$stateParams',
         function(Authentication, Course, $stateParams){
@@ -12,4 +11,4 @@
                 vm.course = data;
             });
         }]);
-})();
+})

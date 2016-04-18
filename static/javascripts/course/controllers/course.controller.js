@@ -1,8 +1,6 @@
-(function() {
-    'use strict';
-
-    angular
-        .module('app.course.controllers')
+define("course/course/controller", ["angular", "course/course/service"], function(angular) {
+    return angular
+        .module('app.course.controllers', [])
         .controller('CourseController', ['$location', '$scope', 'Course', function($location, $scope, Course) {
             $scope.page = 1;
             $scope.category = 0;
@@ -40,4 +38,4 @@
             }
             $scope.getCourse(1, 0);
         }])
-})();
+})

@@ -1,7 +1,6 @@
-(function() {
-    'user strict';
+define("authentication/service", ["angular", "ngCookies"], function(angular) {
 
-    angular
+    return angular
         .module('app.authentication.services', ['ngCookies'])
         .factory('Authentication', ['$cookies', '$http', '$location', '$state', '$window', function($cookies, $http, $location, $state, $window) {
             return {
@@ -83,4 +82,4 @@
 
         }]);
 
-})();
+})

@@ -1,7 +1,6 @@
-(function() {
-    'use strict';
-    angular
-        .module('app.course.services')
+define("course/course/service", ["angular"], function(angular) {
+    return angular
+        .module('app.course.services', [])
         .factory('Course', ['$http', '$q', function($http, $q) {
             return {
                 getSubNav: function() {
@@ -53,4 +52,4 @@
             };
         }])
 
-})();
+})

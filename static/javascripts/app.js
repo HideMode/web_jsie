@@ -1,18 +1,15 @@
-(function() {
-    'use strict';
-    angular
+define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authentication/app", "app/routes", "app/course"], function(angular) {
+    return angular
         .module('app', [
             'ui.bootstrap',
             'app.routes',
             'ngAnimate',
-            // 'app.config',
             'app.authentication',
             'app.course',
-            'app.layout',
-            'ngMessages'
+            'app.layout'
         ])
-        .run(['$http', function($http){
+        .run(['$http', function($http) {
             $http.defaults.xsrfHeaderName = 'X-CSRFToken'
             $http.defaults.xsrfCookieName = 'csrftoken'
-        }])
-})();
+        }]);
+})

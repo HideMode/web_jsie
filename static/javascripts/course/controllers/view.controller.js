@@ -1,7 +1,5 @@
-(function() {
-    'use strict';
-
-    angular
+define("course/view/contorller", ["angular", "ngSanitize", "course/course/service", "course/comment/service"], function(angular) {
+    return angular
         .module('app.course.chapter.view.controllers', ['ngSanitize'])
         .controller('ViewController', ['$stateParams', '$scope', 'Course', 'Comment',
             function($stateParams, $scope, Course, Comment) {
@@ -34,4 +32,4 @@
                 };
             }
         ])
-})();
+})
