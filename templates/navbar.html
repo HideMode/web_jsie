@@ -10,7 +10,7 @@
           <li ui-sref-active="active"><a ui-sref="course" ui-sref-opts="{reload: true}">课程</a></li>
           <li><a id="discuss" href="javascript:void(0)" data-container="body" data-placement="bottom" data-content="暂未开放！">问答</a></li>
         {% if user.is_authenticated %}
-          <li><a ui-sref="account" ui-sref-opts="{reload: true}" ui-sref-active="active">我的主页</a></li>
+          <li ui-sref-active="active"><a ui-sref="account" ui-sref-opts="{reload: true}" >我的主页</a></li>
         {% endif %}
         </ul>
         <ul id="user" class="nav navbar-nav navbar-right">
@@ -28,8 +28,8 @@
                   </a>
                 </li>
                 <li role="presentation" class="divider"></li>
-                <li role="presentation">
-                  <a href="/{{ user.username }}/settings">
+                <li role="presentation" ui-sref-active="active">
+                  <a ui-sref="settings" ui-sref-opts="{reload: true}">
                     <span aria-hidden="true" class="glyphicon glyphicon-cog"></span>
                     <span style="padding-left:10px;">设置</span>
                   </a>

@@ -45,11 +45,13 @@ class ChapterInline(admin.StackedInline):
 admin.site.register(Category)
 
 admin.site.register(SubCategory)
+
+
 class CourseAdmin(admin.ModelAdmin):
     fieldsets = (
         (u'课程信息', {
             'classes': ('grp-collapse', 'grp-closed'),
-            'fields': ('title', 'author', 'poster', 'summary')
+            'fields': ('title', 'author', 'poster', 'subcategory', 'summary')
         }),
     )
     list_display = ('title', 'author', 'poster', 'summary', 'create_at')
@@ -62,14 +64,17 @@ class CourseAdmin(admin.ModelAdmin):
             '/static/javascripts/util/tinymce_setup.js'
         ]
 
+
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Chapter)
+
 
 class ReplyInline(admin.TabularInline):
     model = Reply
     readonly_fields = ('creator', 'parent', 'create_at')
     # fields = (... , "position",)
     # sortable_field_name = "create_at"
+
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('chapter', 'get_content', 'creator', 'create_at')

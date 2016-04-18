@@ -1,0 +1,55 @@
+<div class="container">
+  <div id="content">
+    <div id="myspace">
+      <div class="row">
+        <div class="col-md-9">
+          <div class="alert alert-info" role="alert">
+            <p>
+              <strong>小提示 完善个人信息,让更多的朋友发现你。</strong>
+              <a href="/settings/profile" class="btn btn-success btn-sm">
+                <span class="glyphicon glyphicon-pencil">现在编辑</span>
+              </a>
+            </p>
+          </div>
+          <ul id="userTab" class="nav nav-tabs">
+            <li id="courseNav" class="active" role="presentation">
+              <a href="#course" role="tab" aria-expanded="true" aria-control="status" data-toggle="tab">我的课程</a>
+            </li>
+            <li id="statusNav" role="presentation">
+              <a href="#status" role="tab" aria-expanded="true" aria-control="status" data-toggle="tab">最新动态</a>
+            </li>
+          </ul>
+          <div class="tab-content" id="userTabContent">
+            <div class="tab-pane active" id="course" role="tabpanel">
+              
+            </div>
+            <div class="tab-pane" id="status" role="tabpanel">
+              <div class="alert alert-warning">
+                <p class="text-center">非常抱歉，暂未开放</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="thumbnail">
+            <a href="/settings/avatar" data-toggle="tooltip" title="修改头像">
+              <img src="/uploads/image/avatar/#{avatar}" data-src="holder.js/100%x200" width="220" height="220">
+            </a>
+            <div class="caption">
+              <div class="thumbnail-name">
+                <h3>
+                {{account.nickname}}
+                </h3>
+              </div>
+              <div class="thumbnail-regtime">
+                <span class="glyphicon glyphicon-time"></span>
+                <span>加入时间</span>
+                {{account.created_at | date:'yyyy-M-d H:m' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

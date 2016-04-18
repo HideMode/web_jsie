@@ -2,15 +2,15 @@
   <h3 class="menu-heading">
   课程
   </h3>
-  <div class="menu-item selected">
+  <div ng-click="vm.changeCategory(0)" class="menu-item selected first-item">
     <a href="">全部</a>
   </div>
   <div class="menu-item" ng-repeat="item in vm.subnav_list" ng-cloak>
-    <a href="" data-cateid="{{ item.id }}")>{{item.title}}</a>
+    <a href="" data-cateid="{{ item.id }}">{{item.title}}</a>
       <div class="course-subcategory" ng-if="item.sub.length">
         <div class="course-subcategory-bg"></div>
         <ul>
-          <li ng-repeat="s in item.sub">
+          <li ng-repeat="s in item.sub" ng-click="vm.changeCategory(s.id)">
             <a data-subid="{{ s.id }}" href="">{{s.title}}</a>
           </li>
         </ul>

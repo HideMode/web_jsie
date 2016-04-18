@@ -3,14 +3,14 @@
 
     angular
         .module('app.authentication.services', ['ngCookies'])
-        .factory('Authentication', ['$cookies', '$http', '$location', '$state', function($cookies, $http, $location, $state) {
+        .factory('Authentication', ['$cookies', '$http', '$location', '$state', '$window', function($cookies, $http, $location, $state, $window) {
             return {
                 register: register,
                 login: login,
                 logout: logout,
                 isAuthenticatedAccount: isAuthenticatedAccount
-                // setAuthenticateAccount: setAuthenticateAccount,
-                // unauthenticate: unauthenticate
+                    // setAuthenticateAccount: setAuthenticateAccount,
+                    // unauthenticate: unauthenticate
             }
 
             function register(email, password, username) {
@@ -69,7 +69,12 @@
             }
 
             function setAuthenticateAccount(account) {
-                $cookies.put('authencatedAccount', JSON.stringify(account));
+                var now = new $window.Date(),
+                    // this will set the expiration to 1 months
+                    exp = new $window.Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                $cookies.put('authencatedAccount', JSON.stringify(account), {
+                    expires: exp
+                });
             }
 
             function unauthenticate() {

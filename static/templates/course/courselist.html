@@ -1,7 +1,7 @@
 <div class="container">
   <div class="row">
     <div class="col-md-2">
-      <course-sub-nav></course-sub-nav>
+      <course-sub-nav category-id="category" on-load="onLoad" page="page"></course-sub-nav>
     </div>
     <div class="col-md-9">
       <ol class="breadcrumb course-tools">
@@ -10,19 +10,19 @@
         </li>
       </ol>
       <div class="row course-list">
-        <div class="col-md-4" ng-repeat="item in courseCtrl.course_list">
+        <div class="col-md-4" ng-repeat="item in course_list">
           <a class="thumbnail course-list-item" ui-sref="chapter({id: item.id})">
             <img ng-src="{{ item.poster }}">
             <div class="caption"><h5>{{ item.title }}</h5>
               <div class="info">
                 <span class="l ">{{ item.update_at | date: 'yyyy-M-d H:m' }}更新</span>
-                <!-- <span class="r">学习人数</span> -->
+                <span class="r">学习人数</span>
               </div>
             </div>
           </a>
         </div>
+        <div ng-show="onLoad" class="btn-loading"></div>
       </div>
-        
     </div>
   </div>
 </div>

@@ -44,7 +44,6 @@ class Course(models.Model):
     """
     title = models.CharField(u'标题', unique=True, max_length=20)
     author = models.ForeignKey('authentication.Account', verbose_name=u'作者')
-    # poster = models.ImageField(upload_to='course/poster/', verbose_name=u'海报')
     poster = FileBrowseField(max_length=200, directory="course/poster/", verbose_name=u'海报', extensions=[".jpg", '.jpeg', '.gif', '.png',])
     summary = models.TextField(u'简介')
     subcategory = models.ManyToManyField('SubCategory', verbose_name=u'分类')

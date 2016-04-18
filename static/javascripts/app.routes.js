@@ -17,7 +17,7 @@
                 templateUrl: '/static/templates/authentication/login.html'
             })
             .state('course', {
-                url: '/course',
+                url: '/course?id',
                 templateUrl: '/static/templates/course/courselist.html',
                 controller: 'CourseController',
                 controllerAs: 'courseCtrl'
@@ -31,6 +31,26 @@
                 url: '/view/:id',
                 templateUrl: '/static/templates/course/chapter_detail.html',
                 controller: 'ViewController as vm'
+            })
+            .state('settings', {
+                url: '/settings',
+                templateUrl: '/static/templates/account/settings.html'
+            })
+            .state('settings.avatar', {
+                url: '/avatar',
+                templateUrl: '/static/templates/account/settings/settings-avatar.html'
+            })
+            .state('settings.password', {
+                url: '/password',
+                templateUrl: '/static/templates/account/settings/settings-password.html'
+            })
+            .state('settings.feedback', {
+                url: '/feedback',
+                templateUrl: '/static/templates/account/settings/settings-feedback.html'
+            })
+            .state('account', {
+                url: '/account',
+                templateUrl: '/static/templates/account/account.html'
             })
             $urlRouterProvider.otherwise("/");
         })

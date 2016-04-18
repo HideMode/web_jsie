@@ -2,8 +2,8 @@
     'use strict';
 
     angular
-        .module('app.course.controllers')
-        .directive("courseSubNav", ['Course', '$timeout', function(Course, $timeout) {
+        .module('app.course.directives', [])
+        .directive("courseSubNav", ['Course', '$timeout', '$window', '$document', function(Course, $timeout, $window, $document) {
 
             function changeToolsTitle() {
                 //页面导航
@@ -28,34 +28,33 @@
                 }
                 $(".course-tools").html(title)
             }
-            var setFixed = function() {
+            var setFixed = function(scope) {
                 var t = $(document).scrollTop();
                 if (t > 80) {
                     var width1 = $("nav.course-sidebar").width();
                     var width2 = $(".course-tools").width();
-                    $(".course-sidebar,.course-tools").addClass('fixed')
-                    $(".course-sidebar").width(width1)
-                    $(".course-tools").width(width2)
+                    $(".course-sidebar,.course-tools").addClass('fixed');
+                    $(".course-sidebar").width(width1);
+                    $(".course-tools").width(width2);
                     $(".course-list").css({
                         marginTop: 50
                     })
                 } else {
-                    $(".course-sidebar,.course-tools").removeClass('fixed')
+                    $(".course-sidebar,.course-tools").removeClass('fixed');
                     $(".course-list").css({
                         marginTop: 0
                     })
                 }
 
-                var h = $(document).height()
-                var wh = $(window).height()
-                if (t >= h - wh - 30) {
-                    if (nextPage > 0) {
-                        // loadCourse(nextPage);
-                    }
+                var h = $(document).height();
+                var wh = $(window).height();
+                if (t >= h - wh - 30 && !scope.onLoad) {
+                    scope.page += 1;
+                    scope.$apply();
                 }
             }
 
-            function bindEvent() {
+            function bindEvent(scope) {
                 var timer, timer1, timer2, point = [];
                 $(".course-silderbar")
                     .on("mouseenter", ".course-sidebar",
@@ -79,10 +78,13 @@
                         event.cancelBubble = true;
                     var obj = $(this);
                     $(".menu-item.selected").find('li.cur').removeClass('cur');
-                    $(".menu-item").removeClass('selected');
-                    obj.addClass('selected');
-                    obj.find(".course-subcategory").show()
-                    changeToolsTitle();
+                    if ( $(this).hasClass('first-item') ) {
+                        $(".menu-item").removeClass('selected');
+                        obj.find(".course-subcategory").show()
+                        obj.addClass('selected');
+                        changeToolsTitle();
+                    }
+                    
                     // loadCourse();
                 })
                 $(".course-silderbar").on("mouseenter", ".menu-item", function(event) {
@@ -120,28 +122,35 @@
                     $this.parent('li').addClass('cur');
                     $this.closest('.menu-item').addClass('selected')
                     changeToolsTitle();
-                    // loadCourse();
                 });
-                $(window).scroll(setFixed)
-                setFixed();
-                // loadCourse();
             }
 
             return {
                 restrict: 'EA',
                 templateUrl: '/static/templates/course/sub_nav.html',
+                scope: {
+                    categoryId: '=',
+                    page: '=',
+                    onLoad: '='
+                },
                 controller: function($scope, $element, $attrs) {
                     var vm = this;
-                    // all filter
-                    // var vm.selected;
-
                     Course.getSubNav().then(function(data) {
                         vm.subnav_list = data;
                     });
+                    vm.changeCategory = function(id){
+                        $scope.categoryId = id;
+                    };
                 },
                 controllerAs: 'vm',
                 link: function(scope) {
                     bindEvent(scope);
+                    angular.element($window).bind("scroll", function() {
+                        setFixed(scope);
+                    });
+                    scope.$on('$destroy', function() {
+                        angular.element($window).unbind('scroll');
+                    });
                 }
             }
         }])
@@ -201,168 +210,170 @@
                 };
             }
         ])
-        .directive('showReply', ["$compile", 'Course', 'Authentication', 'Comment', 
+        .directive('showReply', ["$compile", 'Course', 'Authentication', 'Comment',
             function($compile, Course, Authentication, Comment) {
-            return {
-                restrict: "EA",
-                scope: {
-                    replyCount: '=',
-                    commentId: '@'
-                },
-                link: function(scope, element, attrs) {
-                    var replyftTpl = '<div class="comment-box-input"><div class="form-group">\
+                return {
+                    restrict: "EA",
+                    scope: {
+                        replyCount: '=',
+                        commentId: '@'
+                    },
+                    link: function(scope, element, attrs) {
+                        var replyftTpl = '<div class="comment-box-input"><div class="form-group">\
                                         <input type="text" ng-maxlength="replymax" ng-model="content" class="form-control" placeholder="写下你的评论..." required></div>\
                                         <div class="command">\
                                         <a ng-show="is_authenticated" class="r btn btn-primary" ng-click="addNew($event)" role="button" id="addNew" href="javascript:void(0)">评论</a>\
                                         <a class="r command-cancel" name="closeform" href="#">取消</a></div></div></div>';
 
-                    $('.comment-list').delegate('.comment-box-input input.form-control', 'focus', function(event) {
-                        event.preventDefault();
-                        $(this).closest('.comment-box-input').addClass('expanded')
-                    });
-                    $('.comment-list').delegate('.comment-box-input-inline input.form-control', 'focus', function(event) {
-                        event.preventDefault();
-                        $(this).closest('.comment-box-input-inline').addClass('expanded')
-                    });
-                    $('.comment-list').delegate('.command-cancel', 'click', function(event) {
-                        event.preventDefault();
-                        $(this).closest('.comment-box-input').removeClass('expanded');
-                        var $node = $(this).closest('.comment-box-input');
-                        var $nodeInline = $(this).closest('.comment-box-input-inline');
-                        $node.find('input.form-control').val(null)
-                        $nodeInline.find('input.form-control').val(null)
-                    });
-                    scope.addNew = function($event){
-                        var $this = $($event.target);
-                        var $node = $this.closest('.comment-box-input');
-                        var $metaParent = $node.closest('.item-comment').find('.comment-item-meta');
-                        var $meta = $metaParent.find('a.meta-item');
-                        var data = {
-                            comment: scope.commentId
-                        }
-                        // var content = $node.find('input.form-control').val();
-                        var content = scope.content;
-                        if (content.trim()) {
-                            data.content = content.trim();
-                            Comment.addReply(data).then(function(data){
-                                scope.replyCount += 1;
-                                $node.remove();
-                            });
-                        }
-                    };
+                        $('.comment-list').delegate('.comment-box-input input.form-control', 'focus', function(event) {
+                            event.preventDefault();
+                            $(this).closest('.comment-box-input').addClass('expanded')
+                        });
+                        $('.comment-list').delegate('.comment-box-input-inline input.form-control', 'focus', function(event) {
+                            event.preventDefault();
+                            $(this).closest('.comment-box-input-inline').addClass('expanded')
+                        });
+                        $('.comment-list').delegate('.command-cancel', 'click', function(event) {
+                            event.preventDefault();
+                            $(this).closest('.comment-box-input').removeClass('expanded');
+                            var $node = $(this).closest('.comment-box-input');
+                            var $nodeInline = $(this).closest('.comment-box-input-inline');
+                            $node.find('input.form-control').val(null)
+                            $nodeInline.find('input.form-control').val(null)
+                        });
+                        scope.addNew = function($event) {
+                            var $this = $($event.target);
+                            var $node = $this.closest('.comment-box-input');
+                            var $metaParent = $node.closest('.item-comment').find('.comment-item-meta');
+                            var $meta = $metaParent.find('a.meta-item');
+                            var data = {
+                                    comment: scope.commentId
+                                }
+                                // var content = $node.find('input.form-control').val();
+                            var content = scope.content;
+                            if (content.trim()) {
+                                data.content = content.trim();
+                                Comment.addReply(data).then(function(data) {
+                                    scope.replyCount += 1;
+                                    $node.remove();
+                                });
+                            }
+                        };
 
-                    element.click(function(e) {
-                        e.stopPropagation()
-                        var num = parseInt(scope.replyCount);
-                        var $node = $(this).closest('.media-body');
-                        if ($node.hasClass('open')) {
-                            $node.removeClass('open')
-                            $node.find('.comment-box').remove();
-                        } else {
-                            $node.addClass('open')
-                            // $(this).html("<span class='glyphicon glyphicon-comment'><span>收起评论")
+                        element.click(function(e) {
+                            e.stopPropagation()
+                            var num = parseInt(scope.replyCount);
                             var $node = $(this).closest('.media-body');
-                            if (num <= 0) {
-                                var hasBox = $node.find('.comment-box-input').length > 0 ? true : false;
-                                if (!hasBox) {
-                                    var temp = $compile(replyftTpl)(scope);
+                            if ($node.hasClass('open')) {
+                                $node.removeClass('open')
+                                $node.find('.comment-box').remove();
+                            } else {
+                                $node.addClass('open')
+                                    // $(this).html("<span class='glyphicon glyphicon-comment'><span>收起评论")
+                                var $node = $(this).closest('.media-body');
+                                if (num <= 0) {
+                                    var hasBox = $node.find('.comment-box-input').length > 0 ? true : false;
+                                    if (!hasBox) {
+                                        var temp = $compile(replyftTpl)(scope);
+                                        $node.append(temp);
+                                    }
+
+                                } else {
+                                    var temp = $compile('<reply-list reply-count="replyCount" comment-id="{{commentId}}"></reply-list>')(scope);
                                     $node.append(temp);
                                 }
-
-                            } else {
-                                var temp = $compile('<reply-list reply-count="replyCount" comment-id="{{commentId}}"></reply-list>')(scope);
-                                $node.append(temp);
                             }
-                        }
-                    })
-                },
-                controller: function($scope, $element, $attrs) {
-                    $scope.is_authenticated = Authentication.isAuthenticatedAccount();
-                    $scope.replymax = 100;
+                        })
+                    },
+                    controller: function($scope, $element, $attrs) {
+                        $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                        $scope.replymax = 100;
+                    }
                 }
             }
-        }])
-        .directive('replyList', ["$compile", '$timeout', 'Comment', 'Authentication', 
+        ])
+        .directive('replyList', ["$compile", '$timeout', 'Comment', 'Authentication',
             function($compile, $timeout, Comment, Authentication) {
-            return {
-                restrict: "E",
-                scope: {
-                    commentId: '@',
-                    replyCount: '='
-                },
-                templateUrl: '/static/templates/course/reply_list.html',
-                replace: true,
-                link: function(scope, element, attrs) {
-                    var replyftTpl_insert = '<div class="comment-box-input"><div class="form-group">\
+                return {
+                    restrict: "E",
+                    scope: {
+                        commentId: '@',
+                        replyCount: '='
+                    },
+                    templateUrl: '/static/templates/course/reply_list.html',
+                    replace: true,
+                    link: function(scope, element, attrs) {
+                        var replyftTpl_insert = '<div class="comment-box-input"><div class="form-group">\
                                         <input type="text" ng-maxlength="replymax" ng-model="reply" class="form-control" placeholder="写下你的回复..." required></div>\
                                         <div class="command">\
                                         <a ng-show="is_authenticated" ng-click="addReply($event)" class="r btn btn-primary" role="button" id="addReply" href="javascript:void(0)">回复</a>\
                                         <a class="r command-cancel" name="closeform" href="#">取消</a></div></div></div>';
-                    scope.showInput = function($event){
-                        var $this = $($event.currentTarget);
-                        var $node = $this.closest('.reply-body');
-                        if ($node.find('.comment-box-input').length) {
-                            $node.hasClass('open') ? $node.removeClass('open') : $node.addClass('open');
-                        } else {
-                            var temp = $compile(replyftTpl_insert)(scope);
-                            $(temp).find('#addReply').data('reply', $this.data('reply'));
-                            $node.append(temp).addClass('open');
+                        scope.showInput = function($event) {
+                            var $this = $($event.currentTarget);
+                            var $node = $this.closest('.reply-body');
+                            if ($node.find('.comment-box-input').length) {
+                                $node.hasClass('open') ? $node.removeClass('open') : $node.addClass('open');
+                            } else {
+                                var temp = $compile(replyftTpl_insert)(scope);
+                                $(temp).find('#addReply').data('reply', $this.data('reply'));
+                                $node.append(temp).addClass('open');
+                            }
                         }
-                    }
-                    scope.addReply = function($event){
-                        var $this = $($event.target);
-                        var $node = $this.closest('.comment-box-input');
-                        var $mediaBody = $this.closest('.reply-body');
-                        var $meta = $node.siblings('.reply-item-meta').find('a.meta-item');
-                        var data = {
-                            comment: scope.commentId,
-                            parent: $this.data('reply')
-                        }
-                        var content = $node.find('input.form-control').val();
-                        if (content.trim()) {
-                            data.content = content.trim();
-                            Comment.addReply(data).then(function(data){
-                                scope.replys.unshift(data);
-                                scope.replyCount += 1;
-                                $node.find('input.form-control').val("");
-                                $mediaBody.removeClass('open');
+                        scope.addReply = function($event) {
+                            var $this = $($event.target);
+                            var $node = $this.closest('.comment-box-input');
+                            var $mediaBody = $this.closest('.reply-body');
+                            var $meta = $node.siblings('.reply-item-meta').find('a.meta-item');
+                            var data = {
+                                comment: scope.commentId,
+                                parent: $this.data('reply')
+                            }
+                            var content = $node.find('input.form-control').val();
+                            if (content.trim()) {
+                                data.content = content.trim();
+                                Comment.addReply(data).then(function(data) {
+                                    scope.replys.unshift(data);
+                                    scope.replyCount += 1;
+                                    $node.find('input.form-control').val("");
+                                    $mediaBody.removeClass('open');
 
-                            });
-                        }
+                                });
+                            }
 
+                        }
+                        scope.addNew = function($event) {
+                            var $this = $($event.target);
+                            var $node = $this.closest('.comment-box-input-inline');
+                            var $metaParent = $node.closest('.item-comment').find('.comment-item-meta');
+                            var $meta = $metaParent.find('a.meta-item');
+                            var data = {
+                                    comment: scope.commentId
+                                }
+                                // var content = $node.find('input.form-control').val();
+                            var content = scope.content;
+                            if (content.trim()) {
+                                data.content = content.trim();
+                                Comment.addReply(data).then(function(data) {
+                                    scope.replyCount += 1;
+                                    $node.find('input.form-control').val("");
+                                    scope.replys.unshift(data);
+                                    // $node.remove();
+                                });
+                            }
+                        };
+                    },
+                    controller: function($scope) {
+                        $scope.onLoad = !0;
+                        $scope.replymax = 10
+                        $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                        Comment.getReplys($scope.commentId).then(function(data) {
+                            $scope.replys = data;
+                            $timeout(function() {
+                                $scope.onLoad = !1;
+                            }, 500);
+                        });
                     }
-                    scope.addNew = function($event){
-                        var $this = $($event.target);
-                        var $node = $this.closest('.comment-box-input-inline');
-                        var $metaParent = $node.closest('.item-comment').find('.comment-item-meta');
-                        var $meta = $metaParent.find('a.meta-item');
-                        var data = {
-                            comment: scope.commentId
-                        }
-                        // var content = $node.find('input.form-control').val();
-                        var content = scope.content;
-                        if (content.trim()) {
-                            data.content = content.trim();
-                            Comment.addReply(data).then(function(data){
-                                scope.replyCount += 1;
-                                $node.find('input.form-control').val("");
-                                scope.replys.unshift(data);
-                                // $node.remove();
-                            });
-                        }
-                    };
-                },
-                controller: function($scope) {
-                    $scope.onLoad = !0;
-                    $scope.replymax = 10
-                    $scope.is_authenticated = Authentication.isAuthenticatedAccount();
-                    Comment.getReplys($scope.commentId).then(function(data) {
-                        $scope.replys = data;
-                        $timeout(function() {
-                            $scope.onLoad = !1;
-                        }, 500);
-                    });
                 }
             }
-        }]);
+        ]);
 })();

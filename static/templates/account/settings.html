@@ -1,0 +1,15 @@
+<div id="content">
+  <div class="container">
+    <div class="setting-left col-sm-2">
+      <nav class="menu">
+        <h3 class="menu-heading">个人设置</h3>
+        <a ui-sref="settings.avatar" ui-sref-active="selected" id="menu-avatar" class="menu-item">头像设置</a>
+        <a ui-sref="settings.password" ui-sref-active="selected" id="menu-password" class="menu-item">修改密码</a>
+        <a ui-sref="settings.feedback" ui-sref-active="selected" id="menu-feedback" class="menu-item">意见反馈</a>
+      </nav>
+    </div>
+    <div class="setting-content-wrap col-sm-10">
+      <div ui-view></div>
+    </div>
+  </div>
+</div>

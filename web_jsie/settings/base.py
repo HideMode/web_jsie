@@ -148,7 +148,15 @@ REST_FRAMEWORK = {
     )
 }
 
+# grappelli
 GRAPPELLI_ADMIN_TITLE = u'翻转课堂教学平台后台管理系统'
 
 
+
+# filebrower
 FILEBROWSER_DIRECTORY = 'uploads/'
+# rest-framework
+REST_FRAMEWORK = {
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 15
+}

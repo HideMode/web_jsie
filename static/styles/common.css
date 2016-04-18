@@ -447,6 +447,8 @@ cursor: pointer;
   background: url("/static/images/loading.gif") no-repeat scroll center center #ffffff;
   border: 0 none;
   height: 52px;
+  width: 100%;
+  display: block;
   overflow: hidden;
   text-indent: -99em;
 }
