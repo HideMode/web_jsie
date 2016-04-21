@@ -1,5 +1,4 @@
 define("authentication/service", ["angular", "ngCookies"], function(angular) {
-
     return angular
         .module('app.authentication.services', ['ngCookies'])
         .factory('Authentication', ['$cookies', '$http', '$location', '$state', '$window', function($cookies, $http, $location, $state, $window) {
@@ -7,9 +6,20 @@ define("authentication/service", ["angular", "ngCookies"], function(angular) {
                 register: register,
                 login: login,
                 logout: logout,
-                isAuthenticatedAccount: isAuthenticatedAccount
-                    // setAuthenticateAccount: setAuthenticateAccount,
-                    // unauthenticate: unauthenticate
+                isAuthenticatedAccount: isAuthenticatedAccount,
+                getCurrentUser: getCurrentUser
+            }
+
+            function getCurrentUser() {
+                return $http.get('/account/currentuser/').then(
+                    function(data, status) {
+                        unauthenticate()
+                        setAuthenticateAccount(data)
+                    },
+                    function(data, status){
+                        unauthenticate()
+                    }
+                )
             }
 
             function register(email, password, username) {
@@ -38,8 +48,6 @@ define("authentication/service", ["angular", "ngCookies"], function(angular) {
                     setAuthenticateAccount(data.data);
                     var search = $location.search();
                     var url = search.redirect || '/';
-                    // $location.path(unescape(url)).search('redirect', null)
-                    // $state.reload();
                     window.location = '/'
                 }
 
@@ -69,15 +77,16 @@ define("authentication/service", ["angular", "ngCookies"], function(angular) {
 
             function setAuthenticateAccount(account) {
                 var now = new $window.Date(),
-                    // this will set the expiration to 1 months
-                    exp = new $window.Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                    exp = new $window.Date(now.getFullYear(), now.getMonth(), now.getDate()+7);
                 $cookies.put('authencatedAccount', JSON.stringify(account), {
                     expires: exp
                 });
             }
 
             function unauthenticate() {
-                $cookies.remove('authencatedAccount');
+                if (isAuthenticatedAccount()){
+                    $cookies.remove('authencatedAccount');
+                }
             }
 
         }]);

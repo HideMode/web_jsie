@@ -1,4 +1,9 @@
-define("account/cropper/directive", ["angular", "underscore"], function(angular, _) {
+define("app/account", ["angular", "account/controller/avatar"], function(angular) {
+    return angular
+        .module('app.account', [
+            "app.account.controller.avatar"
+        ]);
+}),define("account/cropper/directive", ["angular", "underscore"], function(angular, _) {
     return angular
         .module('account.directive', [])
         .directive("croperPhoto", ["$compile", "employeeNetService", "$parse", "$timeout", "gintDialog",
@@ -48,7 +53,8 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
 }),define("authentication/app", ["angular", "authentication/controller/login", "authentication/controller/register", "authentication/service"], function(angular) {
     return angular
         .module('app.authentication', [
-            'app.authentication.controllers',
+            'app.authentication.controller.login',
+            'app.authentication.controller.register',
             'app.authentication.services'
         ]);
 }),define("app/course", ["angular", "course/directives", "course/comment/service", "course/course/service", "course/chapter/contorller", "course/course/controller",  "course/view/contorller"], function(angular) {
@@ -61,7 +67,7 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
             'app.course.services',
             'app.course.comment.services'
         ]);
-}),define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/service", "authentication/service", "course/comment/service"], function(angular) {
+}),define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/service", "authentication/service", "course/comment/service", "components/snackbar/service"], function(angular) {
     return angular
         .module('app.course.directives', [])
         .directive("courseSubNav", ['Course', '$timeout', '$window', '$document', function(Course, $timeout, $window, $document) {
@@ -215,8 +221,8 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
                 }
             }
         }])
-        .directive("tinyMce", ["$compile", "$state", "$location", "Authentication",
-            function($compile, $state, $location, Authentication) {
+        .directive("tinyMce", ["$compile", "$state", "$location", "Authentication", "Snackbar",
+            function($compile, $state, $location, Authentication, Snackbar) {
                 return {
                     restrict: "EA",
                     scope: {
@@ -264,15 +270,15 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
                                 content: $scope.content
                             })
                             $scope.content = ""
-
+                            Snackbar.show("评论成功!")
                         }
                     },
                     controllerAs: 'vm',
                 };
             }
         ])
-        .directive('showReply', ["$compile", 'Course', 'Authentication', 'Comment',
-            function($compile, Course, Authentication, Comment) {
+        .directive('showReply', ["$compile", 'Course', 'Authentication', 'Comment', "Snackbar",
+            function($compile, Course, Authentication, Comment, Snackbar) {
                 return {
                     restrict: "EA",
                     scope: {
@@ -317,6 +323,7 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
                                 Comment.addReply(data).then(function(data) {
                                     scope.replyCount += 1;
                                     $node.remove();
+                                    Snackbar.show("评论成功!")
                                 });
                             }
                         };
@@ -353,8 +360,8 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
                 }
             }
         ])
-        .directive('replyList', ["$compile", '$timeout', 'Comment', 'Authentication',
-            function($compile, $timeout, Comment, Authentication) {
+        .directive('replyList', ["$compile", '$timeout', 'Comment', 'Authentication', "Snackbar",
+            function($compile, $timeout, Comment, Authentication, Snackbar) {
                 return {
                     restrict: "E",
                     scope: {
@@ -397,7 +404,7 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
                                     scope.replyCount += 1;
                                     $node.find('input.form-control').val("");
                                     $mediaBody.removeClass('open');
-
+                                    Snackbar.show("评论成功!")
                                 });
                             }
 
@@ -418,6 +425,7 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
                                     scope.replyCount += 1;
                                     $node.find('input.form-control').val("");
                                     scope.replys.unshift(data);
+                                    Snackbar.show("评论成功!")
                                     // $node.remove();
                                 });
                             }
@@ -442,26 +450,152 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
         .module('app.layout', [
             'app.layout.controllers'
         ]);
-}),define("authentication/controller/login", ["angular", "ngCookies", "authentication/service"], function() {
+}),define("components/cropper/directive", ["angular", "underscore", "cropper", "components/snackbar/service"], function(angular, _) {
+    return angular
+        .module('app.component.cropper', [])
+        .directive("croperPhoto", ["$compile", "$parse", "$timeout", "Snackbar",
+            function($compile, $parse, $timeout, Snackbar) {
+                return {
+                    restrict: "EA",
+                    templateUrl: "/static/templates/components/cropper.html",
+                    scope: {
+                        imageUrl: "@",
+                    },
+                    link: function($scope, iElement) {
+                        var $image = iElement.find("#_cropper-container > img"),
+                            $inputImage = iElement.find("#fileInput");
+                        $image.attr("src", $scope.imageUrl), $image.cropper({
+                            aspectRatio: 1,
+                            preview: ".account-head-pic",
+                            checkImageOrigin: !1,
+                            crop: function(data) {
+                                $scope.$root.$$phase || $scope.$apply(function() {
+                                    $scope.jsonImageData = {
+                                        url: $scope.imageUrl,
+                                        x: Math.round(data.x),
+                                        y: Math.round(data.y),
+                                        width: Math.round(data.width),
+                                        height: Math.round(data.height)
+                                    }
+                                })
+                            },
+                            built: function() {}
+                        }), $inputImage.change(function() {
+                            var file = this.files[0];
+                            return "image/bmp" != file.type && "image/jpg" != file.type && 
+                            "image/jpeg" != file.type && "image/png" != file.type ? 
+                            void Snackbar.error("图片文件格式不支持，请选择bmp、jpeg、jpg、png格式！") : 
+                            file.size > 1048576 ? void Snackbar.error("图片文件大小超过1M!") : 
+                            (employeeNetService.uploadImage(file).then(function(result) {
+                                result = result.data, result.status ? $scope.imageUrl = result.data.url : Snackbar.error(result.message)
+                            }, 
+                            function() {
+                            }), void $inputImage.val(""))
+                        }), $scope.changeImage = function(e) {
+                            e.stopPropagation(), e.preventDefault(), $inputImage.click()
+                        }, $scope.$watch("imageUrl", function(nv, ov) {
+                            nv !== ov && $image.cropper("replace", nv)
+                        })
+                    }
+                }
+            }
+        ])
+}),define("components/module", ["angular", "components/cropper/directive", "components/snackbar/service"], function(angular) {
+    return angular
+        .module('app.components', [
+            "app.component.cropper",
+            "app.services.snackbar"
+        ]);
+}),define("components/snackbar/service", ["angular", "jquery", "underscore", "snackbar"], function(angular, $, _) {
+
+  return angular
+    .module('app.services.snackbar', [])
+    .factory('Snackbar', Snackbar);
+
+  /**
+   * @namespace Snackbar
+   */
+  function Snackbar() {
+    /**
+     * @name Snackbar
+     * @desc The factory to be returned
+     */
+    var Snackbar = {
+      error: error,
+      show: show
+    };
+
+    return Snackbar;
+
+    ////////////////////
+
+    /**
+     * @name _snackbar
+     * @desc Display a snackbar
+     * @param {string} content The content of the snackbar
+     * @param {Object} options Options for displaying the snackbar
+     */
+    function _snackbar(content, options) {
+      options = _.extend({
+        timeout: 3000,
+        htmlAllowed: true
+      }, options);
+      options.content = content;
+      $.snackbar(options);
+    }
+
+
+    /**
+     * @name error
+     * @desc Display an error snackbar
+     * @param {string} content The content of the snackbar
+     * @param {Object} options Options for displaying the snackbar
+     */
+    function error(content, options) {
+      _snackbar('错误: ' + content, options);
+    }
+
+
+    /**
+     * @name show
+     * @desc Display a standard snackbar
+     * @param {string} content The content of the snackbar
+     * @param {Object} options Options for displaying the snackbar
+     */
+    function show(content, options) {
+      _snackbar(content, options);
+    }
+  }
+}),define("account/controller/avatar", ["angular", "components/cropper/directive"], function() {
 
     return angular
-        .module('app.authentication.controllers', [])
-        .controller('LoginController', ['$location', '$scope', 'Authentication', function($location, $scope, Authentication) {
+        .module('app.account.controller.avatar', [])
+        .controller('AvatarController', function(){
+            
+        })
+}),define("authentication/controller/login", ["angular", "ngCookies", "authentication/service", "components/snackbar/service"], function() {
+
+    return angular
+        .module('app.authentication.controller.login', [])
+        .controller('LoginController', ['$location', '$scope', 'Authentication', "Snackbar", function($location, $scope, Authentication, Snackbar) {
             var vm = this;
             activate();
             vm.login = function() {
                 Authentication.login(vm.email, vm.password);
+
+                Snackbar.show("登陆成功!");
             }
 
             function activate() {
                 if (Authentication.isAuthenticatedAccount()) {
                     $location.url('/');
+                    Snackbar.show("登陆成功!");
                 }
             }
         }])
 }),define("authentication/controller/register", ["angular", "ngCookies", "authentication/service"], function(angular) {
     return angular
-        .module('app.authentication.controllers', [])
+        .module('app.authentication.controller.register', [])
         .controller('RegisterController', ['$location', '$scope', 'Authentication', function($location, $scope, Authentication) {
             var vm = this;
             vm.register = function() {
@@ -469,7 +603,6 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
             }
         }]);
 }),define("authentication/service", ["angular", "ngCookies"], function(angular) {
-
     return angular
         .module('app.authentication.services', ['ngCookies'])
         .factory('Authentication', ['$cookies', '$http', '$location', '$state', '$window', function($cookies, $http, $location, $state, $window) {
@@ -477,9 +610,20 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
                 register: register,
                 login: login,
                 logout: logout,
-                isAuthenticatedAccount: isAuthenticatedAccount
-                    // setAuthenticateAccount: setAuthenticateAccount,
-                    // unauthenticate: unauthenticate
+                isAuthenticatedAccount: isAuthenticatedAccount,
+                getCurrentUser: getCurrentUser
+            }
+
+            function getCurrentUser() {
+                return $http.get('/account/currentuser/').then(
+                    function(data, status) {
+                        unauthenticate()
+                        setAuthenticateAccount(data)
+                    },
+                    function(data, status){
+                        unauthenticate()
+                    }
+                )
             }
 
             function register(email, password, username) {
@@ -508,8 +652,6 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
                     setAuthenticateAccount(data.data);
                     var search = $location.search();
                     var url = search.redirect || '/';
-                    // $location.path(unescape(url)).search('redirect', null)
-                    // $state.reload();
                     window.location = '/'
                 }
 
@@ -539,15 +681,16 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
 
             function setAuthenticateAccount(account) {
                 var now = new $window.Date(),
-                    // this will set the expiration to 1 months
-                    exp = new $window.Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                    exp = new $window.Date(now.getFullYear(), now.getMonth(), now.getDate()+7);
                 $cookies.put('authencatedAccount', JSON.stringify(account), {
                     expires: exp
                 });
             }
 
             function unauthenticate() {
-                $cookies.remove('authencatedAccount');
+                if (isAuthenticatedAccount()){
+                    $cookies.remove('authencatedAccount');
+                }
             }
 
         }]);
@@ -752,7 +895,7 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
                 Authentication.logout();
             }
         }])
-}),define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authentication/app", "app/routes", "app/course"], function(angular) {
+}),define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authentication/app", "app/account", "app/routes", "app/course", "components/module"], function(angular) {
     return angular
         .module('app', [
             'ui.bootstrap',
@@ -760,11 +903,14 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
             'ngAnimate',
             'app.authentication',
             'app.course',
-            'app.layout'
+            'app.layout',
+            'app.components',
+            'app.account'
         ])
-        .run(['$http', function($http) {
-            $http.defaults.xsrfHeaderName = 'X-CSRFToken'
-            $http.defaults.xsrfCookieName = 'csrftoken'
+        .run(['$http', 'Authentication', function($http, Authentication) {
+            $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+            $http.defaults.xsrfCookieName = 'csrftoken';
+            Authentication.getCurrentUser();
         }]);
 }),define("app/routes", ["angular", "uiRouter"], function(angular) {
     angular
@@ -805,7 +951,8 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
             })
             .state('settings.avatar', {
                 url: '/avatar',
-                templateUrl: '/static/templates/account/settings/settings-avatar.html'
+                templateUrl: '/static/templates/account/settings/settings-avatar.html',
+                controller: 'AvatarController'
             })
             .state('settings.password', {
                 url: '/password',
@@ -836,7 +983,8 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
         ngSanitize: "/static/bower_components/angular-sanitize/angular-sanitize",
         tinyMce: "/static/bower_components/tinymce/tinymce.min",
         app: "/static/javascripts/app",
-        tinyMce_lang: "/static/javascripts/util/zh_CN"
+        tinyMce_lang: "/static/javascripts/util/zh_CN",
+        snackbar: "/static/bower_components/snackbarjs/dist/snackbar.min"
     },
     shim: {
         angular: {
@@ -851,6 +999,7 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
         uiRouter: ["angular"],
         ngCookies: ["angular"],
         cropper: ["jquery"],
+        snackbar: ["jquery"],
         underscore: {
             exports: "_"
         },
@@ -859,9 +1008,6 @@ define("account/cropper/directive", ["angular", "underscore"], function(angular,
     }
 }), require(["app"], function() {
      angular.element().ready(function() {
-        // angular.resumeBootstrap([app['name']]);
-        angular.bootstrap(document, ["app"])
+        angular.bootstrap(document, ["app"]);
     });
-    // angular.element(document).ready(function() {
-    // })
 }), define("main", function() {})

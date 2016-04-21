@@ -37,7 +37,8 @@ define("app/routes", ["angular", "uiRouter"], function(angular) {
             })
             .state('settings.avatar', {
                 url: '/avatar',
-                templateUrl: '/static/templates/account/settings/settings-avatar.html'
+                templateUrl: '/static/templates/account/settings/settings-avatar.html',
+                controller: 'AvatarController'
             })
             .state('settings.password', {
                 url: '/password',

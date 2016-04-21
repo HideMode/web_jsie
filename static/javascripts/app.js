@@ -1,4 +1,4 @@
-define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authentication/app", "app/routes", "app/course"], function(angular) {
+define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authentication/app", "app/account", "app/routes", "app/course", "components/module"], function(angular) {
     return angular
         .module('app', [
             'ui.bootstrap',
@@ -6,10 +6,13 @@ define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authent
             'ngAnimate',
             'app.authentication',
             'app.course',
-            'app.layout'
+            'app.layout',
+            'app.components',
+            'app.account'
         ])
-        .run(['$http', function($http) {
-            $http.defaults.xsrfHeaderName = 'X-CSRFToken'
-            $http.defaults.xsrfCookieName = 'csrftoken'
+        .run(['$http', 'Authentication', function($http, Authentication) {
+            $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+            $http.defaults.xsrfCookieName = 'csrftoken';
+            Authentication.getCurrentUser();
         }]);
 })

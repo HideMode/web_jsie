@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 from rest_framework_nested import routers
-from authentication.views import AccountViewSet, LoginView, LogoutView
+from authentication.views import AccountViewSet, LoginView, LogoutView, CurrentUserView
 from course.views import CourseViewSet, CategoryViewSet, ChapterViewSet, CommentViewSet, ReplyViewSet
 from .views import IndexView
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -19,6 +19,7 @@ router.register(r'comments', CommentViewSet)
 router.register(r'replys', ReplyViewSet)
 
 urlpatterns = [
+
     url(r'^api/v1/', include(router.urls)),
     url(r'^api/v1/auth/login/$', LoginView.as_view(), name='login'),
     url(r'^api/v1/auth/logout/$', LogoutView.as_view(), name='logout'),
@@ -27,6 +28,9 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', IndexView.as_view(), name='index'),
 
+]
+urlpatterns += [
+    url(r'^account/currentuser/$', CurrentUserView.as_view(), name="CurrentUser")
 ]
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

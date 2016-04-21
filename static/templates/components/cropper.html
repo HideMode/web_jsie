@@ -1,0 +1,23 @@
+<div class="account-content-minheight">
+    <dl class="account-head-left">
+        <dt>预览</dt>
+        <dd class="account-head-pic size1" style="width: 120px; height: 120px;"><img src="{{imageUrl}}" style="display: block; width: 120px; min-width: 0px !important; min-height: 0px !important; max-width: none !important; max-height: none !important; height: 120px; margin-left: 0px; margin-top: 0px; transform: none;"></dd>
+        <dd class="account-head-pic size2" style="width: 60px; height: 60px;"><img src="{{imageUrl}}" style="display: block; width: 60px; min-width: 0px !important; min-height: 0px !important; max-width: none !important; max-height: none !important; height: 60px; margin-left: 0px; margin-top: 0px; transform: none;"></dd>
+        <dd class="account-head-pic size3" style="width: 40px; height: 40px;"><img src="{{imageUrl}}" style="display: block; width: 40px; min-width: 0px !important; min-height: 0px !important; max-width: none !important; max-height: none !important; height: 40px; margin-left: 0px; margin-top: 0px; transform: none;"></dd>
+    </dl>
+    <dl class="account-head-right">
+        
+        <dd>拖动或调整方框，选择合适的图片区域。</dd>
+        <dd class="account-head-new-box">
+        <div id="_cropper-container" style="width:300px;height:200px;">
+            <img src="{{imageUrl}}" class="cropper-hidden">
+        </div>
+        </dd>
+        <dd>
+        <input type="file" id="fileInput" name="upload" style="display:none;z-index:-888" accept="image/bmp, image/jpg, image/jpeg,image/png">
+        <button type="button" class="btn-default btn-re-do" ng-click="changeImage($event)">上传头像</button>
+        <span class="account-btn-text">支持bmp、JPEG、PNG，最大不超过1MB</span>
+        <!-- 上传图片后 代码变成 <button type="button" class="btn-default btn-re-do">重新选择</button>  -->
+        </dd>
+    </dl>
+</div>

@@ -1,4 +1,4 @@
-define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/service", "authentication/service", "course/comment/service"], function(angular) {
+define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/service", "authentication/service", "course/comment/service", "components/snackbar/service"], function(angular) {
     return angular
         .module('app.course.directives', [])
         .directive("courseSubNav", ['Course', '$timeout', '$window', '$document', function(Course, $timeout, $window, $document) {
@@ -152,8 +152,8 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                 }
             }
         }])
-        .directive("tinyMce", ["$compile", "$state", "$location", "Authentication",
-            function($compile, $state, $location, Authentication) {
+        .directive("tinyMce", ["$compile", "$state", "$location", "Authentication", "Snackbar",
+            function($compile, $state, $location, Authentication, Snackbar) {
                 return {
                     restrict: "EA",
                     scope: {
@@ -201,15 +201,15 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                                 content: $scope.content
                             })
                             $scope.content = ""
-
+                            Snackbar.show("评论成功!")
                         }
                     },
                     controllerAs: 'vm',
                 };
             }
         ])
-        .directive('showReply', ["$compile", 'Course', 'Authentication', 'Comment',
-            function($compile, Course, Authentication, Comment) {
+        .directive('showReply', ["$compile", 'Course', 'Authentication', 'Comment', "Snackbar",
+            function($compile, Course, Authentication, Comment, Snackbar) {
                 return {
                     restrict: "EA",
                     scope: {
@@ -254,6 +254,7 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                                 Comment.addReply(data).then(function(data) {
                                     scope.replyCount += 1;
                                     $node.remove();
+                                    Snackbar.show("评论成功!")
                                 });
                             }
                         };
@@ -290,8 +291,8 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                 }
             }
         ])
-        .directive('replyList', ["$compile", '$timeout', 'Comment', 'Authentication',
-            function($compile, $timeout, Comment, Authentication) {
+        .directive('replyList', ["$compile", '$timeout', 'Comment', 'Authentication', "Snackbar",
+            function($compile, $timeout, Comment, Authentication, Snackbar) {
                 return {
                     restrict: "E",
                     scope: {
@@ -334,7 +335,7 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                                     scope.replyCount += 1;
                                     $node.find('input.form-control').val("");
                                     $mediaBody.removeClass('open');
-
+                                    Snackbar.show("评论成功!")
                                 });
                             }
 
@@ -355,6 +356,7 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                                     scope.replyCount += 1;
                                     $node.find('input.form-control').val("");
                                     scope.replys.unshift(data);
+                                    Snackbar.show("评论成功!")
                                     // $node.remove();
                                 });
                             }

@@ -922,3 +922,37 @@ color: #909b9e;
   /*width: 100%;*/
   height: 100%
 }
+/* cropper section */
+.account-head-left {
+    float: left;
+    width: 148px;
+    text-align: center;
+}
+.account-head-left dd {
+    margin: 15px auto 0;
+}
+.account-head-right {
+    border-left: #f0f0f0 1px solid;
+    width: 345px;
+    padding-left: 20px;
+    float: right;
+}
+.account-head-right dd {
+    margin-top: 20px;
+}
+
+.account-content-minheight {
+    min-height: 456px;
+    width: 540px;
+}
+.cropper-hidden {
+    display: none!important;
+}
+.account-head-new-box img {
+    height: 200px;
+}
+.account-head-pic {
+    overflow: hidden;
+    text-align: center;
+    border-radius: 50%;
+}

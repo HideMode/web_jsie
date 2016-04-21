@@ -13,7 +13,8 @@ requirejs.config({
         ngSanitize: "/static/bower_components/angular-sanitize/angular-sanitize",
         tinyMce: "/static/bower_components/tinymce/tinymce.min",
         app: "/static/javascripts/app",
-        tinyMce_lang: "/static/javascripts/util/zh_CN"
+        tinyMce_lang: "/static/javascripts/util/zh_CN",
+        snackbar: "/static/bower_components/snackbarjs/dist/snackbar.min"
     },
     shim: {
         angular: {
@@ -28,6 +29,7 @@ requirejs.config({
         uiRouter: ["angular"],
         ngCookies: ["angular"],
         cropper: ["jquery"],
+        snackbar: ["jquery"],
         underscore: {
             exports: "_"
         },
@@ -36,9 +38,6 @@ requirejs.config({
     }
 }), require(["app"], function() {
      angular.element().ready(function() {
-        // angular.resumeBootstrap([app['name']]);
-        angular.bootstrap(document, ["app"])
+        angular.bootstrap(document, ["app"]);
     });
-    // angular.element(document).ready(function() {
-    // })
 }), define("main", function() {})

@@ -19,7 +19,7 @@ class AccountViewSet(viewsets.ModelViewSet):
             return (permissions.AllowAny(),)
 
         if self.request.method == "POST":
-            return (permissions.AllowAny(),)
+            return (permissions.IsAuthenticated(), IsAccountOwner(),)
 
         return (permissions.IsAuthenticated(), IsAccountOwner(),)
 
@@ -71,3 +71,16 @@ class LogoutView(views.APIView):
         logout(request)
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+class CurrentUserView(views.APIView):
+    def get(self, request, format=None):
+        if request.user.is_authenticated():
+            serialized = AccountSerializer(request.user)
+            return Response(serialized.data)
+        else:
+            return Response({
+                    'status': 'Unauthorized',
+                    'message': '没有登陆，请先登陆!'
+                }, status=status.HTTP_401_UNAUTHORIZED)
