@@ -7,8 +7,6 @@ define("authentication/controller/login", ["angular", "ngCookies", "authenticati
             activate();
             vm.login = function() {
                 Authentication.login(vm.email, vm.password);
-
-                Snackbar.show("登陆成功!");
             }
 
             function activate() {

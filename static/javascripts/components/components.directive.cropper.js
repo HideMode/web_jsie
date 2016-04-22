@@ -1,8 +1,8 @@
-define("components/cropper/directive", ["angular", "underscore", "cropper", "components/snackbar/service"], function(angular, _) {
+define("components/cropper/directive", ["angular", "underscore", "cropper", "components/snackbar/service", "authentication/service"], function(angular, _) {
     return angular
         .module('app.component.cropper', [])
-        .directive("croperPhoto", ["$compile", "$parse", "$timeout", "Snackbar",
-            function($compile, $parse, $timeout, Snackbar) {
+        .directive("croperPhoto", ["$compile", "$parse", "$timeout", "Snackbar", 'Authentication',
+            function($compile, $parse, $timeout, Snackbar, Authentication) {
                 return {
                     restrict: "EA",
                     templateUrl: "/static/templates/components/cropper.html",
@@ -17,15 +17,15 @@ define("components/cropper/directive", ["angular", "underscore", "cropper", "com
                             preview: ".account-head-pic",
                             checkImageOrigin: !1,
                             crop: function(data) {
-                                $scope.$root.$$phase || $scope.$apply(function() {
-                                    $scope.jsonImageData = {
-                                        url: $scope.imageUrl,
-                                        x: Math.round(data.x),
-                                        y: Math.round(data.y),
-                                        width: Math.round(data.width),
-                                        height: Math.round(data.height)
-                                    }
-                                })
+                                // $scope.$root.$$phase || $scope.$apply(function() {
+                                //     $scope.jsonImageData = {
+                                //         url: $scope.imageUrl,
+                                //         x: Math.round(data.x),
+                                //         y: Math.round(data.y),
+                                //         width: Math.round(data.width),
+                                //         height: Math.round(data.height)
+                                //     }
+                                // })
                             },
                             built: function() {}
                         }), $inputImage.change(function() {
@@ -34,8 +34,14 @@ define("components/cropper/directive", ["angular", "underscore", "cropper", "com
                             "image/jpeg" != file.type && "image/png" != file.type ? 
                             void Snackbar.error("图片文件格式不支持，请选择bmp、jpeg、jpg、png格式！") : 
                             file.size > 1048576 ? void Snackbar.error("图片文件大小超过1M!") : 
-                            (employeeNetService.uploadImage(file).then(function(result) {
-                                result = result.data, result.status ? $scope.imageUrl = result.data.url : Snackbar.error(result.message)
+                            (Authentication.uploadImage(file).then(function(res) {
+                                result = res.data
+                                if (result){
+                                    $scope.imageUrl = result.avatar;
+                                    Snackbar.show('头像上传成功，请刷新页面!');
+                                }else{
+                                    Snackbar.error('错误:'+res.errors);
+                                }
                             }, 
                             function() {
                             }), void $inputImage.val(""))

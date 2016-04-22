@@ -450,11 +450,11 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
         .module('app.layout', [
             'app.layout.controllers'
         ]);
-}),define("components/cropper/directive", ["angular", "underscore", "cropper", "components/snackbar/service"], function(angular, _) {
+}),define("components/cropper/directive", ["angular", "underscore", "cropper", "components/snackbar/service", "authentication/service"], function(angular, _) {
     return angular
         .module('app.component.cropper', [])
-        .directive("croperPhoto", ["$compile", "$parse", "$timeout", "Snackbar",
-            function($compile, $parse, $timeout, Snackbar) {
+        .directive("croperPhoto", ["$compile", "$parse", "$timeout", "Snackbar", 'Authentication',
+            function($compile, $parse, $timeout, Snackbar, Authentication) {
                 return {
                     restrict: "EA",
                     templateUrl: "/static/templates/components/cropper.html",
@@ -469,15 +469,15 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
                             preview: ".account-head-pic",
                             checkImageOrigin: !1,
                             crop: function(data) {
-                                $scope.$root.$$phase || $scope.$apply(function() {
-                                    $scope.jsonImageData = {
-                                        url: $scope.imageUrl,
-                                        x: Math.round(data.x),
-                                        y: Math.round(data.y),
-                                        width: Math.round(data.width),
-                                        height: Math.round(data.height)
-                                    }
-                                })
+                                // $scope.$root.$$phase || $scope.$apply(function() {
+                                //     $scope.jsonImageData = {
+                                //         url: $scope.imageUrl,
+                                //         x: Math.round(data.x),
+                                //         y: Math.round(data.y),
+                                //         width: Math.round(data.width),
+                                //         height: Math.round(data.height)
+                                //     }
+                                // })
                             },
                             built: function() {}
                         }), $inputImage.change(function() {
@@ -486,8 +486,14 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
                             "image/jpeg" != file.type && "image/png" != file.type ? 
                             void Snackbar.error("图片文件格式不支持，请选择bmp、jpeg、jpg、png格式！") : 
                             file.size > 1048576 ? void Snackbar.error("图片文件大小超过1M!") : 
-                            (employeeNetService.uploadImage(file).then(function(result) {
-                                result = result.data, result.status ? $scope.imageUrl = result.data.url : Snackbar.error(result.message)
+                            (Authentication.uploadImage(file).then(function(res) {
+                                result = res.data
+                                if (result){
+                                    $scope.imageUrl = result.avatar;
+                                    Snackbar.show('头像上传成功，请刷新页面!');
+                                }else{
+                                    Snackbar.error('错误:'+res.errors);
+                                }
                             }, 
                             function() {
                             }), void $inputImage.val(""))
@@ -566,12 +572,12 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
       _snackbar(content, options);
     }
   }
-}),define("account/controller/avatar", ["angular", "components/cropper/directive"], function() {
+}),define("account/controller/avatar", ["angular", "components/cropper/directive", "authentication/service"], function() {
 
     return angular
         .module('app.account.controller.avatar', [])
-        .controller('AvatarController', function(){
-            
+        .controller('AvatarController', function($scope, Authentication){
+            $scope.user = Authentication.getCurrentUser()
         })
 }),define("authentication/controller/login", ["angular", "ngCookies", "authentication/service", "components/snackbar/service"], function() {
 
@@ -582,8 +588,6 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
             activate();
             vm.login = function() {
                 Authentication.login(vm.email, vm.password);
-
-                Snackbar.show("登陆成功!");
             }
 
             function activate() {
@@ -602,28 +606,25 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
                 Authentication.register(vm.email, vm.password, vm.username);
             }
         }]);
-}),define("authentication/service", ["angular", "ngCookies"], function(angular) {
+}),define("authentication/service", ["angular", "ngCookies", "components/snackbar/service"], function(angular) {
     return angular
         .module('app.authentication.services', ['ngCookies'])
-        .factory('Authentication', ['$cookies', '$http', '$location', '$state', '$window', function($cookies, $http, $location, $state, $window) {
+        .factory('Authentication', ['$cookies', '$http', '$location', '$state', '$window', 'Snackbar', '$timeout', function($cookies, $http, $location, $state, $window, Snackbar, $timeout) {
+            var currentUser;
             return {
                 register: register,
                 login: login,
                 logout: logout,
                 isAuthenticatedAccount: isAuthenticatedAccount,
-                getCurrentUser: getCurrentUser
+                getCurrentUser: getCurrentUser,
+                setCurrentUser: setCurrentUser,
+                uploadImage: uploadImage
             }
-
+            function setCurrentUser(user){
+                currentUser = user;
+            }
             function getCurrentUser() {
-                return $http.get('/account/currentuser/').then(
-                    function(data, status) {
-                        unauthenticate()
-                        setAuthenticateAccount(data)
-                    },
-                    function(data, status){
-                        unauthenticate()
-                    }
-                )
+                return currentUser;
             }
 
             function register(email, password, username) {
@@ -649,14 +650,18 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
                 }).then(loginSuccessFn, loginErrorFn);
 
                 function loginSuccessFn(data, status, headers, config) {
-                    setAuthenticateAccount(data.data);
-                    var search = $location.search();
-                    var url = search.redirect || '/';
-                    window.location = '/'
+                    // setAuthenticateAccount(data.data);
+                    Snackbar.show('登陆成功!');
+                    $timeout(function(){
+                        var search = $location.search();
+                        var url = search.redirect || '/';
+                        window.location = '/'
+                    }, 1000);
                 }
 
                 function loginErrorFn(data, status, headers, config) {
-                    console.log('login errrors');
+                    Snackbar.error('错误:'+data.data);
+                    // console.log('login errrors');
                 }
             }
 
@@ -665,18 +670,19 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
                     .then(logoutSuccessFn, logoutErrorFn);
 
                 function logoutSuccessFn(data, status, headers, config) {
-                    unauthenticate();
+                    // unauthenticate();
 
                     window.location = '/';
                 }
 
                 function logoutErrorFn(data, status, headers, config) {
-                    console.error('Epic failure!');
+                    console.error('logout failure!');
                 }
             }
 
             function isAuthenticatedAccount() {
-                return !!$cookies.get('authencatedAccount');
+                // return !!$cookies.get('authencatedAccount');
+                return !!currentUser;
             }
 
             function setAuthenticateAccount(account) {
@@ -687,11 +693,26 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
                 });
             }
 
-            function unauthenticate() {
-                if (isAuthenticatedAccount()){
-                    $cookies.remove('authencatedAccount');
-                }
+            function uploadImage(model) {
+                var fd = new FormData;
+                fd.append("avatar", model);
+                var promise = $http.post("/account/uploadimage/", fd, {
+                    transformRequest: angular.identity,
+                    headers: {
+                        "Content-Type": void 0
+                    }
+                });
+                return promise
             }
+
+            function changePassword(){
+                
+            }
+            // function unauthenticate() {
+            //     if (isAuthenticatedAccount()){
+            //         $cookies.remove('authencatedAccount');
+            //     }
+            // }
 
         }]);
 
@@ -891,6 +912,8 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
         .module('app.layout.controllers', [])
         .controller('NavbarController', ['$scope', 'Authentication', function($scope, Authentication){
             var vm = this;
+            vm.user = Authentication.getCurrentUser();
+            vm.is_authenticate = Authentication.isAuthenticatedAccount()
             vm.logout = function(){
                 Authentication.logout();
             }
@@ -907,11 +930,19 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
             'app.components',
             'app.account'
         ])
-        .run(['$http', 'Authentication', function($http, Authentication) {
-            $http.defaults.xsrfHeaderName = 'X-CSRFToken';
-            $http.defaults.xsrfCookieName = 'csrftoken';
-            Authentication.getCurrentUser();
-        }]);
+        // .run(['$http', 'Authentication', function($http, Authentication) {
+        //     $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+        //     $http.defaults.xsrfCookieName = 'csrftoken';
+            // $http.get('/account/currentuser/').then(
+            //         function(data, status) {
+            //             console.log(data.data)
+            //             Authentication.setCurrentUser(data.data);
+            //         },
+            //         function(data, status){
+            //             Authentication.setCurrentUser(null);
+            //         }
+            //     )
+        // }]);
 }),define("app/routes", ["angular", "uiRouter"], function(angular) {
     angular
         .module('app.routes', ['ui.router'])
@@ -1007,7 +1038,40 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
         // tinyMce: ["tinyMce_lang"]
     }
 }), require(["app"], function() {
+
      angular.element().ready(function() {
-        angular.bootstrap(document, ["app"]);
+        // $.get("/account/currentuser/", function(result, status) {
+        //     console.log(result)
+        //     console.log(status)
+        //     var currentUser = result;
+        //     var temp = angular.module("app");
+        //     temp.run(["Authentication", "$http",
+        //         function(Authentication, $http) {
+        //             $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+        //             $http.defaults.xsrfCookieName = 'csrftoken';
+        //             Authentication.setCurrentUser(currentUser);
+        //     }]), angular.bootstrap(document, ["app"])
+        // })
+        $.get("/account/currentuser/")
+            .success(function(result, status) {
+                var currentUser = result;
+                var temp = angular.module("app");
+                temp.run(["Authentication", "$http",
+                    function(Authentication, $http) {
+                        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+                        $http.defaults.xsrfCookieName = 'csrftoken';
+                        Authentication.setCurrentUser(currentUser);
+                }]), angular.bootstrap(document, ["app"])
+            })
+            .error(function(result){
+                var currentUser = '';
+                var temp = angular.module("app");
+                temp.run(["Authentication", "$http",
+                    function(Authentication, $http) {
+                        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+                        $http.defaults.xsrfCookieName = 'csrftoken';
+                        Authentication.setCurrentUser(currentUser);
+                }]), angular.bootstrap(document, ["app"])
+            })
     });
 }), define("main", function() {})

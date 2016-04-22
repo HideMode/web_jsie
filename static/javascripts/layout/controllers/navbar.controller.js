@@ -3,6 +3,8 @@ define("layout/navbar/controller", ["angular", "authentication/service"], functi
         .module('app.layout.controllers', [])
         .controller('NavbarController', ['$scope', 'Authentication', function($scope, Authentication){
             var vm = this;
+            vm.user = Authentication.getCurrentUser();
+            vm.is_authenticate = Authentication.isAuthenticatedAccount()
             vm.logout = function(){
                 Authentication.logout();
             }

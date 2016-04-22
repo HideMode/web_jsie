@@ -2,6 +2,7 @@
 from django.contrib.auth import authenticate, login, logout
 from rest_framework import permissions, viewsets, status, views
 from rest_framework.response import Response
+from django.forms.models import modelform_factory
 
 from authentication.models import Account
 from authentication.permissions import IsAccountOwner
@@ -84,3 +85,20 @@ class CurrentUserView(views.APIView):
                     'status': 'Unauthorized',
                     'message': '没有登陆，请先登陆!'
                 }, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UserUploadImageView(views.APIView):
+    model = Account
+    def get_object(self):
+        return self.request.user
+
+    def post(self, request):
+        obj = self.get_object()
+        AvatarForm = modelform_factory(self.model, fields=('avatar',))
+        avatar_form = AvatarForm(request.POST, request.FILES, instance=obj)
+        if avatar_form.is_valid():
+            avatar_obj = avatar_form.save()
+            serialized = AccountSerializer(avatar_obj)
+            return Response(serialized.data)
+        else:
+            return Response({'errors': avatar_form.errors})

@@ -1,25 +1,22 @@
-define("authentication/service", ["angular", "ngCookies"], function(angular) {
+define("authentication/service", ["angular", "ngCookies", "components/snackbar/service"], function(angular) {
     return angular
         .module('app.authentication.services', ['ngCookies'])
-        .factory('Authentication', ['$cookies', '$http', '$location', '$state', '$window', function($cookies, $http, $location, $state, $window) {
+        .factory('Authentication', ['$cookies', '$http', '$location', '$state', '$window', 'Snackbar', '$timeout', function($cookies, $http, $location, $state, $window, Snackbar, $timeout) {
+            var currentUser;
             return {
                 register: register,
                 login: login,
                 logout: logout,
                 isAuthenticatedAccount: isAuthenticatedAccount,
-                getCurrentUser: getCurrentUser
+                getCurrentUser: getCurrentUser,
+                setCurrentUser: setCurrentUser,
+                uploadImage: uploadImage
             }
-
+            function setCurrentUser(user){
+                currentUser = user;
+            }
             function getCurrentUser() {
-                return $http.get('/account/currentuser/').then(
-                    function(data, status) {
-                        unauthenticate()
-                        setAuthenticateAccount(data)
-                    },
-                    function(data, status){
-                        unauthenticate()
-                    }
-                )
+                return currentUser;
             }
 
             function register(email, password, username) {
@@ -45,14 +42,18 @@ define("authentication/service", ["angular", "ngCookies"], function(angular) {
                 }).then(loginSuccessFn, loginErrorFn);
 
                 function loginSuccessFn(data, status, headers, config) {
-                    setAuthenticateAccount(data.data);
-                    var search = $location.search();
-                    var url = search.redirect || '/';
-                    window.location = '/'
+                    // setAuthenticateAccount(data.data);
+                    Snackbar.show('登陆成功!');
+                    $timeout(function(){
+                        var search = $location.search();
+                        var url = search.redirect || '/';
+                        window.location = '/'
+                    }, 1000);
                 }
 
                 function loginErrorFn(data, status, headers, config) {
-                    console.log('login errrors');
+                    Snackbar.error('错误:'+data.data);
+                    // console.log('login errrors');
                 }
             }
 
@@ -61,18 +62,19 @@ define("authentication/service", ["angular", "ngCookies"], function(angular) {
                     .then(logoutSuccessFn, logoutErrorFn);
 
                 function logoutSuccessFn(data, status, headers, config) {
-                    unauthenticate();
+                    // unauthenticate();
 
                     window.location = '/';
                 }
 
                 function logoutErrorFn(data, status, headers, config) {
-                    console.error('Epic failure!');
+                    console.error('logout failure!');
                 }
             }
 
             function isAuthenticatedAccount() {
-                return !!$cookies.get('authencatedAccount');
+                // return !!$cookies.get('authencatedAccount');
+                return !!currentUser;
             }
 
             function setAuthenticateAccount(account) {
@@ -83,11 +85,26 @@ define("authentication/service", ["angular", "ngCookies"], function(angular) {
                 });
             }
 
-            function unauthenticate() {
-                if (isAuthenticatedAccount()){
-                    $cookies.remove('authencatedAccount');
-                }
+            function uploadImage(model) {
+                var fd = new FormData;
+                fd.append("avatar", model);
+                var promise = $http.post("/account/uploadimage/", fd, {
+                    transformRequest: angular.identity,
+                    headers: {
+                        "Content-Type": void 0
+                    }
+                });
+                return promise
             }
+
+            function changePassword(){
+                
+            }
+            // function unauthenticate() {
+            //     if (isAuthenticatedAccount()){
+            //         $cookies.remove('authencatedAccount');
+            //     }
+            // }
 
         }]);
 

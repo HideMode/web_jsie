@@ -10,9 +10,17 @@ define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authent
             'app.components',
             'app.account'
         ])
-        .run(['$http', 'Authentication', function($http, Authentication) {
-            $http.defaults.xsrfHeaderName = 'X-CSRFToken';
-            $http.defaults.xsrfCookieName = 'csrftoken';
-            Authentication.getCurrentUser();
-        }]);
+        // .run(['$http', 'Authentication', function($http, Authentication) {
+        //     $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+        //     $http.defaults.xsrfCookieName = 'csrftoken';
+            // $http.get('/account/currentuser/').then(
+            //         function(data, status) {
+            //             console.log(data.data)
+            //             Authentication.setCurrentUser(data.data);
+            //         },
+            //         function(data, status){
+            //             Authentication.setCurrentUser(null);
+            //         }
+            //     )
+        // }]);
 })

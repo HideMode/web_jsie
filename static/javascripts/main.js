@@ -37,7 +37,40 @@ requirejs.config({
         // tinyMce: ["tinyMce_lang"]
     }
 }), require(["app"], function() {
+
      angular.element().ready(function() {
-        angular.bootstrap(document, ["app"]);
+        // $.get("/account/currentuser/", function(result, status) {
+        //     console.log(result)
+        //     console.log(status)
+        //     var currentUser = result;
+        //     var temp = angular.module("app");
+        //     temp.run(["Authentication", "$http",
+        //         function(Authentication, $http) {
+        //             $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+        //             $http.defaults.xsrfCookieName = 'csrftoken';
+        //             Authentication.setCurrentUser(currentUser);
+        //     }]), angular.bootstrap(document, ["app"])
+        // })
+        $.get("/account/currentuser/")
+            .success(function(result, status) {
+                var currentUser = result;
+                var temp = angular.module("app");
+                temp.run(["Authentication", "$http",
+                    function(Authentication, $http) {
+                        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+                        $http.defaults.xsrfCookieName = 'csrftoken';
+                        Authentication.setCurrentUser(currentUser);
+                }]), angular.bootstrap(document, ["app"])
+            })
+            .error(function(result){
+                var currentUser = '';
+                var temp = angular.module("app");
+                temp.run(["Authentication", "$http",
+                    function(Authentication, $http) {
+                        $http.defaults.xsrfHeaderName = 'X-CSRFToken';
+                        $http.defaults.xsrfCookieName = 'csrftoken';
+                        Authentication.setCurrentUser(currentUser);
+                }]), angular.bootstrap(document, ["app"])
+            })
     });
 }), define("main", function() {})

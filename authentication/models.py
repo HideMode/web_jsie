@@ -36,6 +36,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     """
     email = models.EmailField(u'邮箱', unique=True)
     username = models.CharField(u'用户名', max_length=40, unique=True)
+    avatar = models.ImageField(u'头像', default="users/avatar.jpg", upload_to="users/avatar", max_length=200)
 
     tagline = models.CharField(u'标语', max_length=140, blank=True)
     is_staff = models.BooleanField(_('staff status'), default=False,

@@ -9,44 +9,39 @@
         <ul class="nav navbar-nav">
           <li ui-sref-active="active"><a ui-sref="course" ui-sref-opts="{reload: true}">课程</a></li>
           <li><a id="discuss" href="javascript:void(0)" data-container="body" data-placement="bottom" data-content="暂未开放！">问答</a></li>
-        {% if user.is_authenticated %}
-          <li ui-sref-active="active"><a ui-sref="account" ui-sref-opts="{reload: true}" >我的主页</a></li>
-        {% endif %}
+          <li ng-if="vm.is_authenticate" ui-sref-active="active"><a ui-sref="account" ui-sref-opts="{reload: true}" >我的主页</a></li>
         </ul>
         <ul id="user" class="nav navbar-nav navbar-right">
-          {% if user.is_authenticated %}
-            <li class="dropdown" uib-dropdown>
-              <a href="javascript:void(0)" uib-dropdown-toggle class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="menu">
-                <img src="{% static 'images/avatar.jpg' %}" width="20" height="20"/><span>{{ user.username }}
-                <span style="font-size:10px; padding-left:2px;color: #717272;" class="glyphicon glyphicon-chevron-down"></span></span>
-              </a>
-              <ul role="menu" uib-dropdown-menu class="dropdown-menu dropdown-menu-right">
-                <li role="presentation" ui-sref-active="active">
-                  <a ui-sref="account" ui-sref-opts="{reload: true}">
-                    <span aria-hidden="true" class="glyphicon glyphicon-user"></span>
-                    <span style="padding-left:10px;">我的主页</span>
-                  </a>
-                </li>
-                <li role="presentation" class="divider"></li>
-                <li role="presentation" ui-sref-active="active">
-                  <a ui-sref="settings" ui-sref-opts="{reload: true}">
-                    <span aria-hidden="true" class="glyphicon glyphicon-cog"></span>
-                    <span style="padding-left:10px;">设置</span>
-                  </a>
-                </li>
-                <li role="presentation" class="divider"></li>
-                <li>
-                  <a href="javascript:void(0)" ng-click="vm.logout()" role="presentation">
-                    <span aria-hidden="true" class="glyphicon glyphicon-off"></span>
-                    <span style="padding-left:10px;">退出</span>
-                  </a>
-                </li>
-              </ul>
-            </li>
-          {% else %}
-            <li ui-sref-active="active"><a ui-sref="login" ui-sref-opts="{reload: true}">登陆</a></li>
-            <li ui-sref-active="active"><a ui-sref="register" ui-sref-opts="{reload: true}">注册</a></li>
-          {% endif %}
+          <li ng-if="vm.is_authenticate" class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" uib-dropdown-toggle class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="menu">
+              <img ng-src="{{user.avatar.url}}" width="20" height="20"/><span>{{ user.username }}
+              <span style="font-size:10px; padding-left:2px;color: #717272;" class="glyphicon glyphicon-chevron-down"></span></span>
+            </a>
+            <ul role="menu" uib-dropdown-menu class="dropdown-menu dropdown-menu-right">
+              <li role="presentation" ui-sref-active="active">
+                <a ui-sref="account" ui-sref-opts="{reload: true}">
+                  <span aria-hidden="true" class="glyphicon glyphicon-user"></span>
+                  <span style="padding-left:10px;">我的主页</span>
+                </a>
+              </li>
+              <li role="presentation" class="divider"></li>
+              <li role="presentation" ui-sref-active="active">
+                <a ui-sref="settings.avatar" ui-sref-opts="{reload: true}">
+                  <span aria-hidden="true" class="glyphicon glyphicon-cog"></span>
+                  <span style="padding-left:10px;">设置</span>
+                </a>
+              </li>
+              <li role="presentation" class="divider"></li>
+              <li>
+                <a href="javascript:void(0)" ng-click="vm.logout()" role="presentation">
+                  <span aria-hidden="true" class="glyphicon glyphicon-off"></span>
+                  <span style="padding-left:10px;">退出</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li ng-if="!vm.is_authenticate" ui-sref-active="active"><a ui-sref="login" ui-sref-opts="{reload: true}">登陆</a></li>
+          <li ng-if="!vm.is_authenticate" ui-sref-active="active"><a ui-sref="register" ui-sref-opts="{reload: true}">注册</a></li>
         </ul>
         <form role="search" method="GET" action="/search" autocomplete="off" class="navbar-form navbar-right search-form">
           <input type="text" name="words" placeholder="搜索课程、问答" class="search-input"/>
