@@ -42,7 +42,8 @@ define("app/routes", ["angular", "uiRouter"], function(angular) {
             })
             .state('settings.password', {
                 url: '/password',
-                templateUrl: '/static/templates/account/settings/settings-password.html'
+                templateUrl: '/static/templates/account/settings/settings-password.html',
+                controller: 'PassWordController'
             })
             .state('settings.feedback', {
                 url: '/feedback',
@@ -50,7 +51,13 @@ define("app/routes", ["angular", "uiRouter"], function(angular) {
             })
             .state('account', {
                 url: '/account',
-                templateUrl: '/static/templates/account/account.html'
+                templateUrl: '/static/templates/account/account.html',
+                controller: 'AccountController'
+            })
+            .state('search', {
+                url: '/search?words',
+                templateUrl: '/static/templates/course/explore.html',
+                // controller: 'AccountController'
             })
             $urlRouterProvider.otherwise("/");
         })

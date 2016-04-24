@@ -1,7 +1,9 @@
-define("app/account", ["angular", "account/controller/avatar"], function(angular) {
+define("app/account", ["angular", "account/controller/avatar", "account/controller/password", "account/controller/account"], function(angular) {
     return angular
         .module('app.account', [
-            "app.account.controller.avatar"
+            "app.account.controller.avatar",
+            "app.account.controller.password",
+            "app.account.controller.account",
         ]);
 }),define("account/cropper/directive", ["angular", "underscore"], function(angular, _) {
     return angular
@@ -572,12 +574,68 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
       _snackbar(content, options);
     }
   }
+}),define("account/controller/account", ["angular", "components/cropper/directive", "authentication/service"], function() {
+
+    return angular
+        .module('app.account.controller.account', [])
+        .controller('AccountController', function($scope, Authentication){
+            $scope.user = Authentication.getCurrentUser()
+        })
 }),define("account/controller/avatar", ["angular", "components/cropper/directive", "authentication/service"], function() {
 
     return angular
         .module('app.account.controller.avatar', [])
         .controller('AvatarController', function($scope, Authentication){
             $scope.user = Authentication.getCurrentUser()
+        })
+}),define("account/controller/password", ["angular", "authentication/service", "components/snackbar/service"], function() {
+
+    return angular
+        .module('app.account.controller.password', [])
+        .controller('PassWordController', function($scope, Authentication, Snackbar){
+            $scope.is_correct = !1;
+            $scope.is_ok = !1;
+            $scope.user = {
+                oldPwd: '',
+                newPwd: '',
+                cfmPwd: ''
+            }
+
+            $scope.checkPassword = function(){
+                Authentication.checkUserPassword($scope.user.oldPwd).then(function(data){
+                    if(data.success){
+                        Snackbar.show('密码输入正确!')
+                        $scope.is_correct = !0;
+                    }
+                    else{
+                        Snackbar.show('错误:请输入正确的密码!')
+                        $scope.is_correct = !1;
+                    }
+                });
+            }
+
+            $scope.changePassword = function(){
+                Authentication.changePassword($scope.user.newPwd, $scope.user.cfmPwd)
+            }
+
+            $scope.$watch('user.newPwd+user.cfmPwd', function(nv, ov){
+                if ($scope.user.newPwd && $scope.user.cfmPwd  && $scope.user.newPwd == $scope.user.cfmPwd){
+                    $scope.is_ok = !0;
+                }else{
+                    $scope.is_ok = !1;
+                    if ($scope.user.newPwd && $scope.user.cfmPwd){
+
+                        Snackbar.error('错误:输入的两次密码不相同!')
+                    }else{
+
+                    }
+                }
+            })
+            // $scope.$watch('user.oldPwd', function(nv, ov) {
+            //      // body...  
+            //      console.log(nv, ov)
+            // })
+
         })
 }),define("authentication/controller/login", ["angular", "ngCookies", "authentication/service", "components/snackbar/service"], function() {
 
@@ -609,7 +667,7 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
 }),define("authentication/service", ["angular", "ngCookies", "components/snackbar/service"], function(angular) {
     return angular
         .module('app.authentication.services', ['ngCookies'])
-        .factory('Authentication', ['$cookies', '$http', '$location', '$state', '$window', 'Snackbar', '$timeout', function($cookies, $http, $location, $state, $window, Snackbar, $timeout) {
+        .factory('Authentication', ['$cookies', '$http', '$q', '$location', '$state', '$window', 'Snackbar', '$timeout', function($cookies, $http, $q, $location, $state, $window, Snackbar, $timeout) {
             var currentUser;
             return {
                 register: register,
@@ -618,11 +676,15 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
                 isAuthenticatedAccount: isAuthenticatedAccount,
                 getCurrentUser: getCurrentUser,
                 setCurrentUser: setCurrentUser,
-                uploadImage: uploadImage
+                uploadImage: uploadImage,
+                checkUserPassword: checkUserPassword,
+                changePassword: changePassword
             }
-            function setCurrentUser(user){
+
+            function setCurrentUser(user) {
                 currentUser = user;
             }
+
             function getCurrentUser() {
                 return currentUser;
             }
@@ -652,15 +714,15 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
                 function loginSuccessFn(data, status, headers, config) {
                     // setAuthenticateAccount(data.data);
                     Snackbar.show('登陆成功!');
-                    $timeout(function(){
+                    $timeout(function() {
                         var search = $location.search();
                         var url = search.redirect || '/';
-                        window.location = '/'
+                        $state.go('account')
                     }, 1000);
                 }
 
                 function loginErrorFn(data, status, headers, config) {
-                    Snackbar.error('错误:'+data.data);
+                    Snackbar.error('错误:' + data.data);
                     // console.log('login errrors');
                 }
             }
@@ -671,8 +733,8 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
 
                 function logoutSuccessFn(data, status, headers, config) {
                     // unauthenticate();
-
-                    window.location = '/';
+                    $state.go('login')
+                    // window.location = '/';
                 }
 
                 function logoutErrorFn(data, status, headers, config) {
@@ -687,7 +749,7 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
 
             function setAuthenticateAccount(account) {
                 var now = new $window.Date(),
-                    exp = new $window.Date(now.getFullYear(), now.getMonth(), now.getDate()+7);
+                    exp = new $window.Date(now.getFullYear(), now.getMonth(), now.getDate() + 7);
                 $cookies.put('authencatedAccount', JSON.stringify(account), {
                     expires: exp
                 });
@@ -702,11 +764,33 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
                         "Content-Type": void 0
                     }
                 });
-                return promise
+                return promise;
             }
 
-            function changePassword(){
-                
+            function changePassword(password, confirm_password) {
+                return $http.put("/api/v1/accounts/" + currentUser.id + '/', {
+                    password: password,
+                    confirm_password: confirm_password
+                }).then(function(data, status) {
+                    Snackbar.show('密码更新成功，请重新登陆！')
+                    $timeout(function() {
+                        logout();
+                    }, 3000);
+                }, function() {
+                    Snackbar.show('错误:更新失败!')
+                });
+
+            }
+
+            function checkUserPassword(password) {
+                var d = $q.defer();
+                return $http.post("/account/checkpassword/", {
+                    password: password
+                }).success(function(data) {
+                    d.resolve(data)
+                }).error(function(err) {
+                    d.reject(err);
+                }), d.promise;
             }
             // function unauthenticate() {
             //     if (isAuthenticatedAccount()){
@@ -910,12 +994,16 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
 }),define("layout/navbar/controller", ["angular", "authentication/service"], function(angular) {
     return angular
         .module('app.layout.controllers', [])
-        .controller('NavbarController', ['$scope', 'Authentication', function($scope, Authentication){
+        .controller('NavbarController', ['$scope', '$state', 'Authentication', function($scope, $state, Authentication){
             var vm = this;
             vm.user = Authentication.getCurrentUser();
             vm.is_authenticate = Authentication.isAuthenticatedAccount()
             vm.logout = function(){
                 Authentication.logout();
+            }
+            // words
+            vm.searchCourse = function(){
+                $state.go('search')
             }
         }])
 }),define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authentication/app", "app/account", "app/routes", "app/course", "components/module"], function(angular) {
@@ -987,7 +1075,8 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
             })
             .state('settings.password', {
                 url: '/password',
-                templateUrl: '/static/templates/account/settings/settings-password.html'
+                templateUrl: '/static/templates/account/settings/settings-password.html',
+                controller: 'PassWordController'
             })
             .state('settings.feedback', {
                 url: '/feedback',
@@ -995,7 +1084,13 @@ define("app/account", ["angular", "account/controller/avatar"], function(angular
             })
             .state('account', {
                 url: '/account',
-                templateUrl: '/static/templates/account/account.html'
+                templateUrl: '/static/templates/account/account.html',
+                controller: 'AccountController'
+            })
+            .state('search', {
+                url: '/search?words',
+                templateUrl: '/static/templates/course/explore.html',
+                // controller: 'AccountController'
             })
             $urlRouterProvider.otherwise("/");
         })

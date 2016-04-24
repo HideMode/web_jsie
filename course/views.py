@@ -63,4 +63,4 @@ class ReplyViewSet(viewsets.ModelViewSet):
         return None
 
     def perform_create(self, serializer):
-        serializer.save(creator=self.request.user) 
+        serializer.save(creator=self.request.user)

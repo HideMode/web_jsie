@@ -1,7 +1,7 @@
 define("authentication/service", ["angular", "ngCookies", "components/snackbar/service"], function(angular) {
     return angular
         .module('app.authentication.services', ['ngCookies'])
-        .factory('Authentication', ['$cookies', '$http', '$location', '$state', '$window', 'Snackbar', '$timeout', function($cookies, $http, $location, $state, $window, Snackbar, $timeout) {
+        .factory('Authentication', ['$cookies', '$http', '$q', '$location', '$state', '$window', 'Snackbar', '$timeout', function($cookies, $http, $q, $location, $state, $window, Snackbar, $timeout) {
             var currentUser;
             return {
                 register: register,
@@ -10,11 +10,15 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
                 isAuthenticatedAccount: isAuthenticatedAccount,
                 getCurrentUser: getCurrentUser,
                 setCurrentUser: setCurrentUser,
-                uploadImage: uploadImage
+                uploadImage: uploadImage,
+                checkUserPassword: checkUserPassword,
+                changePassword: changePassword
             }
-            function setCurrentUser(user){
+
+            function setCurrentUser(user) {
                 currentUser = user;
             }
+
             function getCurrentUser() {
                 return currentUser;
             }
@@ -44,15 +48,15 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
                 function loginSuccessFn(data, status, headers, config) {
                     // setAuthenticateAccount(data.data);
                     Snackbar.show('登陆成功!');
-                    $timeout(function(){
+                    $timeout(function() {
                         var search = $location.search();
                         var url = search.redirect || '/';
-                        window.location = '/'
+                        $state.go('account')
                     }, 1000);
                 }
 
                 function loginErrorFn(data, status, headers, config) {
-                    Snackbar.error('错误:'+data.data);
+                    Snackbar.error('错误:' + data.data);
                     // console.log('login errrors');
                 }
             }
@@ -63,8 +67,8 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
 
                 function logoutSuccessFn(data, status, headers, config) {
                     // unauthenticate();
-
-                    window.location = '/';
+                    $state.go('login')
+                    // window.location = '/';
                 }
 
                 function logoutErrorFn(data, status, headers, config) {
@@ -79,7 +83,7 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
 
             function setAuthenticateAccount(account) {
                 var now = new $window.Date(),
-                    exp = new $window.Date(now.getFullYear(), now.getMonth(), now.getDate()+7);
+                    exp = new $window.Date(now.getFullYear(), now.getMonth(), now.getDate() + 7);
                 $cookies.put('authencatedAccount', JSON.stringify(account), {
                     expires: exp
                 });
@@ -94,11 +98,33 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
                         "Content-Type": void 0
                     }
                 });
-                return promise
+                return promise;
             }
 
-            function changePassword(){
-                
+            function changePassword(password, confirm_password) {
+                return $http.put("/api/v1/accounts/" + currentUser.id + '/', {
+                    password: password,
+                    confirm_password: confirm_password
+                }).then(function(data, status) {
+                    Snackbar.show('密码更新成功，请重新登陆！')
+                    $timeout(function() {
+                        logout();
+                    }, 3000);
+                }, function() {
+                    Snackbar.show('错误:更新失败!')
+                });
+
+            }
+
+            function checkUserPassword(password) {
+                var d = $q.defer();
+                return $http.post("/account/checkpassword/", {
+                    password: password
+                }).success(function(data) {
+                    d.resolve(data)
+                }).error(function(err) {
+                    d.reject(err);
+                }), d.promise;
             }
             // function unauthenticate() {
             //     if (isAuthenticatedAccount()){

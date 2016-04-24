@@ -1,0 +1,43 @@
+<div class="container">
+    <div class="row content col-md-push-1 col-md-8">
+        <div class="subheader">
+            <h1>搜索</h1>
+            <div id="subsearch" class="row">
+                <div class="form-group col-md-8">
+                    <input type="text" class="form-control">
+                </div>
+                <button id="search-btn" class="btn btn-primary" type="button">搜索</button>
+            </div>
+            <div class="search-list">
+                <div class="search-course">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- block content
+    .container
+        .row.content
+            .col-md-push-1.col-md-8
+                - var words = keywords || ""
+                .subheader
+                    h1 搜索
+                form#subsearch(aucomplete="off")
+                    .row
+                        .form-group.col-md-8
+                            input.form-control(type="text", autocomplete="off", name="words", value=words)
+                        button#search-btn.btn.btn-primary(type="submit") 搜索
+                .search-tabs
+                    ul.nav.nav-tabs(role="tablist")
+                        li.active(role="presentation")
+                            a(href='#course_list', data-url="/search/course", aria-controls="course_list", role="tab", data-toggle="tab") 课程
+                        li(role="presentation")
+                            a(href='#discuss_list', data-url="/search/discuss", aria-controls="discuss_list", role="tab", data-toggle="tab") 问答
+                //- .range-selector
+                .serach-list.tab-content
+                    .tab-pane.active#course_list(role="tabpanel")
+                        .search-course
+
+                    .tab-pane#discuss_list(role="tabpanel")
+                        .serach-discuss
+                            | 非常抱歉，该功能还未开放。 -->
