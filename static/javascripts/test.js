@@ -59,13 +59,14 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
             'app.authentication.controller.register',
             'app.authentication.services'
         ]);
-}),define("app/course", ["angular", "course/directives", "course/comment/service", "course/course/service", "course/chapter/contorller", "course/course/controller",  "course/view/contorller"], function(angular) {
+}),define("app/course", ["angular", "course/directives", "course/comment/service", "course/course/service", "course/chapter/contorller", "course/course/controller",  "course/view/contorller", "course/search/controller"], function(angular) {
     return angular
         .module('app.course', [
             'app.course.controllers',
             'app.course.directives',
             'app.course.chapter.controllers',
             'app.course.chapter.view.controllers',
+            'app.course.search.controllers',
             'app.course.services',
             'app.course.comment.services'
         ]);
@@ -853,6 +854,17 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
             }
             $scope.getCourse(1, 0);
         }])
+}),define("course/search/controller", ["angular", "ngSanitize", "course/course/service"], function(angular) {
+    return angular
+        .module('app.course.search.controllers', ['ngSanitize'])
+        .controller('SearchController', ['$location', '$scope', 'Course', function($location, $scope, Course) {
+            var search = $location.search();
+            var key_words = search.search || '';
+            console.log(search)
+            Course.getCourseList(1, 0, key_words).then(function(data){
+                $scope.course_list = data;
+            })
+        }])
 }),define("course/view/contorller", ["angular", "ngSanitize", "course/course/service", "course/comment/service"], function(angular) {
     return angular
         .module('app.course.chapter.view.controllers', ['ngSanitize'])
@@ -952,12 +964,13 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                             d.reject(err);
                         }), d.promise;
                 },
-                getCourseList: function(page, id) {
+                getCourseList: function(page, id, search) {
                     var d = $q.defer();
                     return $http.get('/api/v1/courses/', {
                             params: {
                                 page: page,
                                 cate_id: id,
+                                search: search || ''
                                 // page_size: 1
                             }
                         })
@@ -1003,7 +1016,8 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
             }
             // words
             vm.searchCourse = function(){
-                $state.go('search')
+                $state.go('search', {search: vm.words});
+                vm.words = '';
             }
         }])
 }),define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authentication/app", "app/account", "app/routes", "app/course", "components/module"], function(angular) {
@@ -1088,9 +1102,9 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                 controller: 'AccountController'
             })
             .state('search', {
-                url: '/search?words',
+                url: '/search?search',
                 templateUrl: '/static/templates/course/explore.html',
-                // controller: 'AccountController'
+                controller: 'SearchController'
             })
             $urlRouterProvider.otherwise("/");
         })

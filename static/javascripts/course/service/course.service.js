@@ -13,12 +13,13 @@ define("course/course/service", ["angular"], function(angular) {
                             d.reject(err);
                         }), d.promise;
                 },
-                getCourseList: function(page, id) {
+                getCourseList: function(page, id, search) {
                     var d = $q.defer();
                     return $http.get('/api/v1/courses/', {
                             params: {
                                 page: page,
                                 cate_id: id,
+                                search: search || ''
                                 // page_size: 1
                             }
                         })

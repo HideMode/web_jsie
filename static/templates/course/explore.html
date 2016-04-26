@@ -10,6 +10,22 @@
             </div>
             <div class="search-list">
                 <div class="search-course">
+                <ul>
+                <li class="course" ng-repeat="course in course_list">
+                    <h2 class="title">
+                        <a target="_blank" ui-sref="chapter({id: course.id})" ui-sref-opts="{reload: true}">{{ course.title }}</a>
+                    </h2>
+                    <div class="tip"><span>作者:{{ course.author.username }}</span></div>
+                    <div class="content clearfix">
+                        <div class="thumbnail">
+                        <a target="_blank" ui-sref="chapter({id: course.id})" ui-sref-opts="{reload: true}">
+                            <img ng-src="{{ course.poster }}">
+                        </a>
+                        </div>
+                        <div class="introduction">课程简介:<div ng-bind-html="course.summary"></div>  </div>
+                    </div>
+                </li>
+                </ul>
                 </div>
             </div>
         </div>

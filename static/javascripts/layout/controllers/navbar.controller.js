@@ -10,7 +10,8 @@ define("layout/navbar/controller", ["angular", "authentication/service"], functi
             }
             // words
             vm.searchCourse = function(){
-                $state.go('search')
+                $state.go('search', {search: vm.words});
+                vm.words = '';
             }
         }])
 })

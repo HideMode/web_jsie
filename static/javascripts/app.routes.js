@@ -55,9 +55,9 @@ define("app/routes", ["angular", "uiRouter"], function(angular) {
                 controller: 'AccountController'
             })
             .state('search', {
-                url: '/search?words',
+                url: '/search?search',
                 templateUrl: '/static/templates/course/explore.html',
-                // controller: 'AccountController'
+                controller: 'SearchController'
             })
             $urlRouterProvider.otherwise("/");
         })

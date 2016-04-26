@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions, viewsets, status, views
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework import filters
 from .models import Category, SubCategory, Course, Chapter, Comment, Reply
 from .serializers import CourseSerializer, CategorySerializer, ChapterSerializer, CommentSerializer, ReplySerializer
 
@@ -13,14 +14,16 @@ class LargeResultsSetPagination(PageNumberPagination):
     max_page_size = 10000
 
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
+    # filter_backends = (filters.DjangoFilterBackend,)
+    # filter_class = CourseFilter
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    # pagination_class = PageNumberPagination
+    search_fields = ('title',)
+    filter_backends = (filters.SearchFilter,)
     pagination_class = LargeResultsSetPagination
 
     def get_queryset(self):
         cateId = self.request.query_params.get('cate_id', "0")
-        print('len', len(self.queryset))
         if cateId != '0':
             return self.queryset.filter(subcategory=cateId)
         return self.queryset
