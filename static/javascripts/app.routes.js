@@ -24,7 +24,7 @@ define("app/routes", ["angular", "uiRouter"], function(angular) {
             .state('chapter', {
                 url: '/chapter/:id',
                 templateUrl: '/static/templates/course/course_chapter.html',
-                controller: 'ChapterController as vm'
+                controller: 'ChapterController',
             })
             .state('view', {
                 url: '/view/:id',
@@ -59,6 +59,6 @@ define("app/routes", ["angular", "uiRouter"], function(angular) {
                 templateUrl: '/static/templates/course/explore.html',
                 controller: 'SearchController'
             })
-            $urlRouterProvider.otherwise("/");
+            $urlRouterProvider.otherwise("course");
         })
 })

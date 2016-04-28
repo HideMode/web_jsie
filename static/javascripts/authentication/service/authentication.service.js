@@ -12,7 +12,8 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
                 setCurrentUser: setCurrentUser,
                 uploadImage: uploadImage,
                 checkUserPassword: checkUserPassword,
-                changePassword: changePassword
+                changePassword: changePassword,
+                getUserFollowCourse: getUserFollowCourse
             }
 
             function setCurrentUser(user) {
@@ -21,6 +22,16 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
 
             function getCurrentUser() {
                 return currentUser;
+            }
+            function getUserFollowCourse() {
+                var d = $q.defer();
+                    return $http.get('/account/follow/course/')
+                        .success(function(data) {
+                            d.resolve(data);
+                        })
+                        .error(function(err) {
+                            d.reject(err);
+                        }), d.promise;
             }
 
             function register(email, password, username) {
@@ -51,7 +62,9 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
                     $timeout(function() {
                         var search = $location.search();
                         var url = search.redirect || '/';
-                        $state.go('account')
+                        // $state.go('account', {}, { reload: true })
+                        // $state.reload();
+                        window.location = '#/account';
                     }, 1000);
                 }
 
@@ -67,8 +80,8 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
 
                 function logoutSuccessFn(data, status, headers, config) {
                     // unauthenticate();
-                    $state.go('login')
-                    // window.location = '/';
+                    // $state.go('login', {}, { reload: true })
+                    window.location = '#/login';
                 }
 
                 function logoutErrorFn(data, status, headers, config) {

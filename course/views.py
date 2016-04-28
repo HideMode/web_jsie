@@ -4,8 +4,10 @@ from rest_framework import permissions, viewsets, status, views
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import filters
+from authentication.permissions import IsAccountOwner
 from .models import Category, SubCategory, Course, Chapter, Comment, Reply
 from .serializers import CourseSerializer, CategorySerializer, ChapterSerializer, CommentSerializer, ReplySerializer
+import json
 
 
 class LargeResultsSetPagination(PageNumberPagination):
@@ -67,3 +69,43 @@ class ReplyViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
+
+
+class ChangeCourseStatus(views.APIView):
+
+    model = Course
+
+    def get_object(self):
+        return self.request.user
+
+    def get_permissions(self):
+        return (IsAccountOwner(),)
+
+    def post(self, request):
+        data = request.data
+        course_id = data.get('course_id', None)
+        # course_id = self.request.POST.get('course_id', None)
+        obj = self.get_object()
+        # list is queryset array
+        # course_id is id 
+        data = {
+            'msg': '',
+            'success': True,
+            'follow': True
+        }
+        if int(course_id) in obj.course.all().values_list('id', flat=True):
+            try:
+                course_obj = Course.objects.get(pk=course_id)
+                obj.course.remove(course_obj)
+                data["msg"] = u'课程取消关注成功!'
+                data['follow'] = False
+            except Exception, e:
+                data.update({
+                    msg: u'服务器错误',
+                    success: False,
+                    error: unicode(e)
+                    })
+        else:
+            obj.course.add(course_id)
+            data["msg"] = u'课程关注成功!'
+        return Response(data)

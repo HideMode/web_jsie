@@ -1,8 +1,8 @@
 define("components/cropper/directive", ["angular", "underscore", "cropper", "components/snackbar/service", "authentication/service"], function(angular, _) {
     return angular
         .module('app.component.cropper', [])
-        .directive("croperPhoto", ["$compile", "$parse", "$timeout", "Snackbar", 'Authentication',
-            function($compile, $parse, $timeout, Snackbar, Authentication) {
+        .directive("croperPhoto", ["$rootScope", "$compile", "$parse", "$timeout", "Snackbar", 'Authentication',
+            function($rootScope, $compile, $parse, $timeout, Snackbar, Authentication) {
                 return {
                     restrict: "EA",
                     templateUrl: "/static/templates/components/cropper.html",
@@ -38,7 +38,10 @@ define("components/cropper/directive", ["angular", "underscore", "cropper", "com
                                 result = res.data
                                 if (result){
                                     $scope.imageUrl = result.avatar;
-                                    Snackbar.show('头像上传成功，请刷新页面!');
+                                    Snackbar.show('头像上传成功!');
+                                    $rootScope.currentUser = result
+                                    // $rootScope.$apply();
+                                    // $scope.$root.$$phase || $rootScope.$apply();
                                 }else{
                                     Snackbar.error('错误:'+res.errors);
                                 }

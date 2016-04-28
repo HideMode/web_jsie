@@ -5,53 +5,6 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
             "app.account.controller.password",
             "app.account.controller.account",
         ]);
-}),define("account/cropper/directive", ["angular", "underscore"], function(angular, _) {
-    return angular
-        .module('account.directive', [])
-        .directive("croperPhoto", ["$compile", "employeeNetService", "$parse", "$timeout", "gintDialog",
-            function($compile, employeeNetService, $parse, $timeout, gintDialog) {
-                return {
-                    restrict: "EA",
-                    templateUrl: "components/cropper/template.html",
-                    scope: {
-                        imageUrl: "=",
-                        jsonImageData: "="
-                    },
-                    link: function($scope, iElement) {
-                        var $image = iElement.find("#_cropper-container > img"),
-                            $inputImage = iElement.find("#fileInput");
-                        $image.attr("src", $scope.imageUrl), $image.cropper({
-                            aspectRatio: 1,
-                            preview: ".account-head-pic",
-                            checkImageOrigin: !1,
-                            crop: function(data) {
-                                $scope.$root.$$phase || $scope.$apply(function() {
-                                    $scope.jsonImageData = {
-                                        url: $scope.imageUrl,
-                                        x: Math.round(data.x),
-                                        y: Math.round(data.y),
-                                        width: Math.round(data.width),
-                                        height: Math.round(data.height)
-                                    }
-                                })
-                            },
-                            built: function() {}
-                        }), $inputImage.change(function() {
-                            var file = this.files[0];
-                            return "image/bmp" != file.type && "image/jpg" != file.type && "image/jpeg" != file.type && "image/png" != file.type ? void gintDialog.error("图片文件格式不支持，请选择bmp、jpeg、jpg、png格式！", 1) : file.size > 4194304 ? void gintDialog.error("图片文件大小超过4M!", 1) : (employeeNetService.uploadImage(file).then(function(result) {
-                                result = result.data, result.status ? $scope.imageUrl = result.data.url : gintDialog.error(result.message, 1)
-                            }, function() {
-                                gintDialog.error("网络异常，上传失败", 1)
-                            }), void $inputImage.val(""))
-                        }), $scope.changeImage = function(e) {
-                            e.stopPropagation(), e.preventDefault(), $inputImage.click()
-                        }, $scope.$watch("imageUrl", function(nv, ov) {
-                            nv !== ov && $image.cropper("replace", nv)
-                        })
-                    }
-                }
-            }
-        ])
 }),define("authentication/app", ["angular", "authentication/controller/login", "authentication/controller/register", "authentication/service"], function(angular) {
     return angular
         .module('app.authentication', [
@@ -456,8 +409,8 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
 }),define("components/cropper/directive", ["angular", "underscore", "cropper", "components/snackbar/service", "authentication/service"], function(angular, _) {
     return angular
         .module('app.component.cropper', [])
-        .directive("croperPhoto", ["$compile", "$parse", "$timeout", "Snackbar", 'Authentication',
-            function($compile, $parse, $timeout, Snackbar, Authentication) {
+        .directive("croperPhoto", ["$rootScope", "$compile", "$parse", "$timeout", "Snackbar", 'Authentication',
+            function($rootScope, $compile, $parse, $timeout, Snackbar, Authentication) {
                 return {
                     restrict: "EA",
                     templateUrl: "/static/templates/components/cropper.html",
@@ -493,7 +446,10 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                                 result = res.data
                                 if (result){
                                     $scope.imageUrl = result.avatar;
-                                    Snackbar.show('头像上传成功，请刷新页面!');
+                                    Snackbar.show('头像上传成功!');
+                                    $rootScope.currentUser = result
+                                    // $rootScope.$apply();
+                                    // $scope.$root.$$phase || $rootScope.$apply();
                                 }else{
                                     Snackbar.error('错误:'+res.errors);
                                 }
@@ -509,11 +465,25 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                 }
             }
         ])
-}),define("components/module", ["angular", "components/cropper/directive", "components/snackbar/service"], function(angular) {
+}),define("components/navbar/directive", ["angular", "underscore", "cropper", "components/snackbar/service", "authentication/service"], function(angular, _) {
+    return angular
+        .module('app.component.navbar', [])
+        .directive("navBar", ["$compile", "$parse", "$timeout", "Snackbar", 'Authentication',
+            function($compile, $parse, $timeout, Snackbar, Authentication) {
+                return {
+                    restrict: "EA",
+                    templateUrl: "/static/templates/components/navbar.html",
+                    controller: 'NavbarController',
+                    controllerAs: 'vm'
+                }
+            }
+        ])
+}),define("components/module", ["angular", "components/cropper/directive", "components/snackbar/service", "components/navbar/directive"], function(angular) {
     return angular
         .module('app.components', [
             "app.component.cropper",
-            "app.services.snackbar"
+            "app.services.snackbar",
+            "app.component.navbar"
         ]);
 }),define("components/snackbar/service", ["angular", "jquery", "underscore", "snackbar"], function(angular, $, _) {
 
@@ -581,6 +551,9 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
         .module('app.account.controller.account', [])
         .controller('AccountController', function($scope, Authentication){
             $scope.user = Authentication.getCurrentUser()
+            Authentication.getUserFollowCourse().then(function(data){
+                $scope.course_list = data
+            })
         })
 }),define("account/controller/avatar", ["angular", "components/cropper/directive", "authentication/service"], function() {
 
@@ -679,7 +652,8 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                 setCurrentUser: setCurrentUser,
                 uploadImage: uploadImage,
                 checkUserPassword: checkUserPassword,
-                changePassword: changePassword
+                changePassword: changePassword,
+                getUserFollowCourse: getUserFollowCourse
             }
 
             function setCurrentUser(user) {
@@ -688,6 +662,16 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
 
             function getCurrentUser() {
                 return currentUser;
+            }
+            function getUserFollowCourse() {
+                var d = $q.defer();
+                    return $http.get('/account/follow/course/')
+                        .success(function(data) {
+                            d.resolve(data);
+                        })
+                        .error(function(err) {
+                            d.reject(err);
+                        }), d.promise;
             }
 
             function register(email, password, username) {
@@ -718,7 +702,9 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                     $timeout(function() {
                         var search = $location.search();
                         var url = search.redirect || '/';
-                        $state.go('account')
+                        // $state.go('account', {}, { reload: true })
+                        // $state.reload();
+                        window.location = '#/account';
                     }, 1000);
                 }
 
@@ -734,8 +720,8 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
 
                 function logoutSuccessFn(data, status, headers, config) {
                     // unauthenticate();
-                    $state.go('login')
-                    // window.location = '/';
+                    // $state.go('login', {}, { reload: true })
+                    window.location = '#/login';
                 }
 
                 function logoutErrorFn(data, status, headers, config) {
@@ -801,19 +787,42 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
 
         }]);
 
-}),define("course/chapter/contorller", ["angular", "ngSanitize", "authentication/service", "course/course/service"], function(angular) {
+}),define("course/chapter/contorller", ["angular", "ngSanitize", "authentication/service", "course/course/service", "components/snackbar/service"], function(angular) {
 
     return angular
-    .module('app.course.chapter.controllers', ['ngSanitize'])
-    .controller('ChapterController', ['Authentication' , 'Course', '$stateParams',
-        function(Authentication, Course, $stateParams){
-            var vm = this;
-            var course_id = $stateParams.id;
-            vm.is_authenticated = Authentication.isAuthenticatedAccount();
-            Course.getCourseById(course_id).then(function(data){
-                vm.course = data;
-            });
-        }]);
+        .module('app.course.chapter.controllers', ['ngSanitize'])
+        .controller('ChapterController', ['$scope', '$rootScope', 'Authentication', 'Course', '$stateParams', 'Snackbar',
+            function($scope, $rootScope, Authentication, Course, $stateParams, Snackbar) {
+                // var vm = this;
+                var course_id = parseInt($stateParams.id);
+                $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                $scope.course_list = $rootScope.currentUser.course || [];
+                $scope.$watchCollection('course_list', function(nv, ov) {
+                    $scope.is_follow = nv.indexOf(course_id) == -1 ? !1 : !0;
+                })
+                Course.getCourseById(course_id).then(function(data) {
+                    $scope.course = data;
+                });
+
+                // follow or un follow func
+                $scope.changeStatus = function() {
+                    Course.changeStatus(course_id).then(function(data) {
+                        if (data.success) {
+                            Snackbar.show(data.msg);
+                            if (data.follow) {
+                                // follow 
+                                $scope.course_list.push(course_id);
+                            } else {
+                                var index = $scope.course_list.indexOf(course_id);
+                                $scope.course_list.splice(index, 1)
+                            }
+                        } else {
+                            Snackbar.error(data.msg);
+                        }
+                    });
+                };
+            }
+        ]);
 }),define("course/course/controller", ["angular", "course/course/service"], function(angular) {
     return angular
         .module('app.course.controllers', [])
@@ -971,7 +980,7 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                                 page: page,
                                 cate_id: id,
                                 search: search || ''
-                                // page_size: 1
+                                    // page_size: 1
                             }
                         })
                         .success(function(data) {
@@ -1000,6 +1009,18 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                         .error(function(err) {
                             d.reject(err);
                         }), d.promise;
+                },
+                changeStatus: function(course_id) {
+                    var d = $q.defer();
+                    return $http.post('/course/change/status/', {
+                            course_id: course_id
+                        })
+                        .success(function(data) {
+                            d.resolve(data);
+                        })
+                        .error(function(err) {
+                            d.reject(err);
+                        }), d.promise;
                 }
             };
         }])
@@ -1007,18 +1028,24 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
 }),define("layout/navbar/controller", ["angular", "authentication/service"], function(angular) {
     return angular
         .module('app.layout.controllers', [])
-        .controller('NavbarController', ['$scope', '$state', 'Authentication', function($scope, $state, Authentication){
+        .controller('NavbarController', ['$rootScope', '$scope', '$state', 'Authentication', function($rootScope, $scope, $state, Authentication) {
             var vm = this;
-            vm.user = Authentication.getCurrentUser();
+            vm.user = $rootScope.currentUser;
+            // vm.user = Authentication.getCurrentUser();
             vm.is_authenticate = Authentication.isAuthenticatedAccount()
-            vm.logout = function(){
-                Authentication.logout();
-            }
-            // words
-            vm.searchCourse = function(){
-                $state.go('search', {search: vm.words});
+            vm.logout = function() {
+                    Authentication.logout();
+                }
+                // words
+            vm.searchCourse = function() {
+                $state.go('search', {
+                    search: vm.words
+                });
                 vm.words = '';
             }
+            $rootScope.$watch('currentUser', function(nv, ov) {
+                vm.user = $rootScope.currentUser;
+            })
         }])
 }),define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authentication/app", "app/account", "app/routes", "app/course", "components/module"], function(angular) {
     return angular
@@ -1071,7 +1098,7 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
             .state('chapter', {
                 url: '/chapter/:id',
                 templateUrl: '/static/templates/course/course_chapter.html',
-                controller: 'ChapterController as vm'
+                controller: 'ChapterController',
             })
             .state('view', {
                 url: '/view/:id',
@@ -1106,7 +1133,7 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                 templateUrl: '/static/templates/course/explore.html',
                 controller: 'SearchController'
             })
-            $urlRouterProvider.otherwise("/");
+            $urlRouterProvider.otherwise("course");
         })
 }),requirejs.config({
     paths: {
@@ -1165,20 +1192,22 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
             .success(function(result, status) {
                 var currentUser = result;
                 var temp = angular.module("app");
-                temp.run(["Authentication", "$http",
-                    function(Authentication, $http) {
+                temp.run(["Authentication", "$http", "$rootScope",
+                    function(Authentication, $http, $rootScope) {
                         $http.defaults.xsrfHeaderName = 'X-CSRFToken';
                         $http.defaults.xsrfCookieName = 'csrftoken';
+                        $rootScope.currentUser = currentUser;
                         Authentication.setCurrentUser(currentUser);
                 }]), angular.bootstrap(document, ["app"])
             })
             .error(function(result){
                 var currentUser = '';
                 var temp = angular.module("app");
-                temp.run(["Authentication", "$http",
-                    function(Authentication, $http) {
+                temp.run(["Authentication", "$http", "$rootScope",
+                    function(Authentication, $http, $rootScope) {
                         $http.defaults.xsrfHeaderName = 'X-CSRFToken';
                         $http.defaults.xsrfCookieName = 'csrftoken';
+                        $rootScope.currentUser = currentUser;
                         Authentication.setCurrentUser(currentUser);
                 }]), angular.bootstrap(document, ["app"])
             })

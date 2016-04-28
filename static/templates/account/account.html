@@ -21,10 +21,19 @@
           </ul> -->
           <uib-tabset active="active">
             <uib-tab index="0" heading="我的课程">
-              tab1
+              <div class="profile-item" ng-repeat="course in course_list">
+                <span style="float:right;">{{ course.update_at | date: 'yyyy-M-d H:m' }}更新</span>
+                <div class="activity">
+                  {{ course.author.username }}
+                  <a ui-sref="chapter({id: course.id})" ui-sref-opts="{reload: true}" class="question_link" target="_blank"> {{ course.title }} </a>
+                </div>
+              </div>
+              <a ui-sref="course" class="btn btn-lg btn-primary" style="margin-top:20px;" target="_blank">发现更多课程</a>
             </uib-tab>
             <uib-tab index="1" heading="最新动态">
-              tab2
+              <div class="alert alert-warning">
+                <p class="text-center">非常抱歉，暂未开放</p>
+              </div>
             </uib-tab>
           </uib-tabset>
          <!--  <div class="tab-content" id="userTabContent">

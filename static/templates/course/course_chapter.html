@@ -1,11 +1,11 @@
 <div class="container" ng-cloak>
   <div class="course_nav">
     <a href="#" class="picture">
-      <img ng-src="{{ vm.course.poster }}" width="200", height="113">
+      <img ng-src="{{ course.poster }}" width="200", height="113">
     </a>
     <ul>
       <li>
-        <div class="course_title">{{ vm.course.title }}</div>
+        <div class="course_title">{{ course.title }}</div>
       </li>
       <li>
         <div class="row">
@@ -14,12 +14,12 @@
             <p>学习人数</p>
           </div>
           <div class="col-md-4 dashboard">
-            <h4 id="course_author">{{ vm.course.author.username }}</h4>
+            <h4 id="course_author">{{ course.author.username }}</h4>
             <p>授课老师</p>
           </div>
           <div class="col-md-4 dashboard">
             <h4>
-              {{ vm.course.update_at | date: 'yyyy-M-d H:m' }}
+              {{ course.update_at | date: 'yyyy-M-d H:m' }}
             </h4>
             <p>更新时间</p>
           </div>
@@ -27,9 +27,9 @@
       </li>
     </ul>
     <div class="course_btn">
-        <a href="" ng-if="vm.is_authenticated" id="quitCourse" class="btn-lg btn btn-danger" role="button">退出该课程</a>
-        <a href="" id="addCourse" class="btn-lg btn btn-primary" role="button">加入该课程</a>
-        <a href="javascript:void(0)" ng-if="!vm.is_authenticated" role="button" class="btn-lg btn btn-info">请先登录</a>
+        <a ng-click="changeStatus()" ng-show="is_authenticated && is_follow" id="quitCourse" class="btn-lg btn btn-danger" role="button">退出该课程</a>
+        <a ng-click="changeStatus()" ng-show="is_authenticated && !is_follow" id="addCourse" class="btn-lg btn btn-primary" role="button">加入该课程</a>
+        <a ui-sref="login" ng-if="!is_authenticated" role="button" class="btn-lg btn btn-info">请先登录</a>
     </div>
   </div>
   <div class="content">
@@ -39,7 +39,7 @@
           <div class="panel-heading">
             <h3 class="panel-title">课程介绍</h3>
             <div class="panel-body">
-              <div class="course_shortdecription" ng-bind-html="vm.course.summary">test:</div>
+              <div class="course_shortdecription" ng-bind-html="course.summary">test:</div>
             </div>
           </div>
         </div>
@@ -49,7 +49,7 @@
             <div class="panel-body">
               <div class="course_chapter_list"></div>
                 <!-- 课程章节 -->
-                <div class="chapter" ng-repeat="chapter in vm.course.chapters">
+                <div class="chapter" ng-repeat="chapter in course.chapters">
                   <a ui-sref="view({id: chapter.id})" ui-sref-opts="{reload: true}">
                     <span class="glyphicon glyphicon-list list-float"></span>
                     <strong>{{ chapter.title }}</strong>

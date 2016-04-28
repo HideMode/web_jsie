@@ -55,20 +55,22 @@ requirejs.config({
             .success(function(result, status) {
                 var currentUser = result;
                 var temp = angular.module("app");
-                temp.run(["Authentication", "$http",
-                    function(Authentication, $http) {
+                temp.run(["Authentication", "$http", "$rootScope",
+                    function(Authentication, $http, $rootScope) {
                         $http.defaults.xsrfHeaderName = 'X-CSRFToken';
                         $http.defaults.xsrfCookieName = 'csrftoken';
+                        $rootScope.currentUser = currentUser;
                         Authentication.setCurrentUser(currentUser);
                 }]), angular.bootstrap(document, ["app"])
             })
             .error(function(result){
                 var currentUser = '';
                 var temp = angular.module("app");
-                temp.run(["Authentication", "$http",
-                    function(Authentication, $http) {
+                temp.run(["Authentication", "$http", "$rootScope",
+                    function(Authentication, $http, $rootScope) {
                         $http.defaults.xsrfHeaderName = 'X-CSRFToken';
                         $http.defaults.xsrfCookieName = 'csrftoken';
+                        $rootScope.currentUser = currentUser;
                         Authentication.setCurrentUser(currentUser);
                 }]), angular.bootstrap(document, ["app"])
             })

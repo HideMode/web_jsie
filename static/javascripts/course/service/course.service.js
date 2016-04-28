@@ -20,7 +20,7 @@ define("course/course/service", ["angular"], function(angular) {
                                 page: page,
                                 cate_id: id,
                                 search: search || ''
-                                // page_size: 1
+                                    // page_size: 1
                             }
                         })
                         .success(function(data) {
@@ -43,6 +43,18 @@ define("course/course/service", ["angular"], function(angular) {
                 getCourseChapterById: function(chapter_id) {
                     var d = $q.defer();
                     return $http.get('api/v1/chapters/' + chapter_id)
+                        .success(function(data) {
+                            d.resolve(data);
+                        })
+                        .error(function(err) {
+                            d.reject(err);
+                        }), d.promise;
+                },
+                changeStatus: function(course_id) {
+                    var d = $q.defer();
+                    return $http.post('/course/change/status/', {
+                            course_id: course_id
+                        })
                         .success(function(data) {
                             d.resolve(data);
                         })

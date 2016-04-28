@@ -8,6 +8,8 @@ from django.contrib.auth.hashers import check_password
 from authentication.models import Account
 from authentication.permissions import IsAccountOwner
 from authentication.serializers import AccountSerializer
+from course.serializers import CourseSerializer
+
 import json
 
 
@@ -127,3 +129,11 @@ class CheckUserPasswordView(views.APIView):
             return Response({'success': True})
         else: 
             return Response({'success': False, 'message': u'请输入正确的密码!'})
+
+
+class UserFollowCourseView(viewsets.ReadOnlyModelViewSet):
+    queryset = None
+    serializer_class = CourseSerializer
+
+    def get_queryset(self):
+        return self.request.user.course.all().order_by('-update_at')
