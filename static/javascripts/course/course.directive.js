@@ -152,8 +152,8 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                 }
             }
         }])
-        .directive("tinyMce", ["$compile", "$state", "$location", "Authentication", "Snackbar",
-            function($compile, $state, $location, Authentication, Snackbar) {
+        .directive("tinyMce", ["$compile", "$state", "$location", "Authentication", "Snackbar", "$rootScope"
+            function($compile, $state, $location, Authentication, Snackbar, $rootScope) {
                 return {
                     restrict: "EA",
                     scope: {
@@ -191,7 +191,9 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                         });
                     },
                     controller: function($scope, $element, $attrs) {
-                        $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                        $rootScope.$watch('currentUser', function(nv, ov) {
+                            $scope.is_authenticated = $rootScope.currentUser;
+                        });
                         $scope.redirectToLogin = function() {
                             var redirect = $location.url();
                             $location.url('/login' + '?redirect=' + redirect);
@@ -365,7 +367,9 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                     controller: function($scope) {
                         $scope.onLoad = !0;
                         $scope.replymax = 10
-                        $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                        $rootScope.$watch('currentUser', function(nv, ov) {
+                            $scope.is_authenticated = $rootScope.currentUser;
+                        });
                         Comment.getReplys($scope.commentId).then(function(data) {
                             $scope.replys = data;
                             $timeout(function() {
