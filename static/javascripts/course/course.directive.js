@@ -152,7 +152,8 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                 }
             }
         }])
-        .directive("tinyMce", ["$compile", "$state", "$location", "Authentication", "Snackbar", "$rootScope"
+        .directive("tinyMce", ["$compile", "$state", "$location", "Authentication", "Snackbar", "$rootScope",
+
             function($compile, $state, $location, Authentication, Snackbar, $rootScope) {
                 return {
                     restrict: "EA",
@@ -210,8 +211,8 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                 };
             }
         ])
-        .directive('showReply', ["$compile", 'Course', 'Authentication', 'Comment', "Snackbar",
-            function($compile, Course, Authentication, Comment, Snackbar) {
+        .directive('showReply', ["$compile", 'Course', 'Authentication', 'Comment', "Snackbar", "$rootScope",
+            function($compile, Course, Authentication, Comment, Snackbar, $rootScope) {
                 return {
                     restrict: "EA",
                     scope: {
@@ -287,14 +288,16 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                         })
                     },
                     controller: function($scope, $element, $attrs) {
-                        $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                        $rootScope.$watch('currentUser', function(nv, ov) {
+                            $scope.is_authenticated = $rootScope.currentUser;
+                        });
                         $scope.replymax = 100;
                     }
                 }
             }
         ])
-        .directive('replyList', ["$compile", '$timeout', 'Comment', 'Authentication', "Snackbar",
-            function($compile, $timeout, Comment, Authentication, Snackbar) {
+        .directive('replyList', ["$compile", '$timeout', 'Comment', 'Authentication', "Snackbar", "$rootScope",
+            function($compile, $timeout, Comment, Authentication, Snackbar, $rootScope) {
                 return {
                     restrict: "E",
                     scope: {
@@ -359,7 +362,7 @@ define("course/directives", ["angular", "tinyMce", "ngCookies", "course/course/s
                                     $node.find('input.form-control').val("");
                                     scope.replys.unshift(data);
                                     Snackbar.show("评论成功!")
-                                    // $node.remove();
+                                        // $node.remove();
                                 });
                             }
                         };
