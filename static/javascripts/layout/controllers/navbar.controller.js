@@ -5,7 +5,6 @@ define("layout/navbar/controller", ["angular", "authentication/service"], functi
             var vm = this;
             vm.user = $rootScope.currentUser;
             // vm.user = Authentication.getCurrentUser();
-            vm.is_authenticate = Authentication.isAuthenticatedAccount()
             vm.logout = function() {
                     Authentication.logout();
                 }
@@ -18,6 +17,7 @@ define("layout/navbar/controller", ["angular", "authentication/service"], functi
             }
             $rootScope.$watch('currentUser', function(nv, ov) {
                 vm.user = $rootScope.currentUser;
+                vm.is_authenticate = $rootScope.currentUser;
             })
         }])
 })

@@ -47,7 +47,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
                     'active. Unselect this instead of deleting accounts.'))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    course = models.ManyToManyField('course.Course', verbose_name=u"课程", related_name="concerned_course")
+    course = models.ManyToManyField('course.Course', verbose_name=u"课程", related_name="concerned_course", null=True, blank=True)
     objects = AccountManager()
 
     USERNAME_FIELD = 'email'

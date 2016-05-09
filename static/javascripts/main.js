@@ -60,6 +60,7 @@ requirejs.config({
                         $http.defaults.xsrfHeaderName = 'X-CSRFToken';
                         $http.defaults.xsrfCookieName = 'csrftoken';
                         $rootScope.currentUser = currentUser;
+                        console.log($rootScope.currentUser)
                         Authentication.setCurrentUser(currentUser);
                 }]), angular.bootstrap(document, ["app"])
             })

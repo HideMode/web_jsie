@@ -617,17 +617,10 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
         .module('app.authentication.controller.login', [])
         .controller('LoginController', ['$location', '$scope', 'Authentication', "Snackbar", function($location, $scope, Authentication, Snackbar) {
             var vm = this;
-            activate();
             vm.login = function() {
                 Authentication.login(vm.email, vm.password);
             }
 
-            function activate() {
-                if (Authentication.isAuthenticatedAccount()) {
-                    $location.url('/');
-                    Snackbar.show("登陆成功!");
-                }
-            }
         }])
 }),define("authentication/controller/register", ["angular", "ngCookies", "authentication/service"], function(angular) {
     return angular
@@ -641,7 +634,7 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
 }),define("authentication/service", ["angular", "ngCookies", "components/snackbar/service"], function(angular) {
     return angular
         .module('app.authentication.services', ['ngCookies'])
-        .factory('Authentication', ['$cookies', '$http', '$q', '$location', '$state', '$window', 'Snackbar', '$timeout', function($cookies, $http, $q, $location, $state, $window, Snackbar, $timeout) {
+        .factory('Authentication', ['$cookies', '$http', '$q', '$location', '$state', '$window', 'Snackbar', '$timeout', '$rootScope', function($cookies, $http, $q, $location, $state, $window, Snackbar, $timeout, $rootScope) {
             var currentUser;
             return {
                 register: register,
@@ -675,6 +668,9 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
             }
 
             function register(email, password, username) {
+                if (!email || !password || !username){
+                    return Snackbar.show('邮箱、用户名、密码无法为空!')
+                }
                 return $http.post('/api/v1/accounts/', {
                     username: username,
                     password: password,
@@ -687,6 +683,7 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
 
                 function registerErrorFn(data, status, headers, config) {
                     console.log('register failed');
+                    Snackbar.show(data.data.message)
                 }
             }
 
@@ -702,9 +699,11 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                     $timeout(function() {
                         var search = $location.search();
                         var url = search.redirect || '/';
-                        // $state.go('account', {}, { reload: true })
-                        // $state.reload();
-                        window.location = '#/account';
+                        $rootScope.$apply(function(){
+                            $rootScope.currentUser =  data.data;
+                        });
+                        $state.go('account', {}, { reload: true })
+                        // window.location = '/#/account';
                     }, 1000);
                 }
 
@@ -720,8 +719,10 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
 
                 function logoutSuccessFn(data, status, headers, config) {
                     // unauthenticate();
-                    // $state.go('login', {}, { reload: true })
-                    window.location = '#/login';
+                    $rootScope.currentUser = null;
+                    // $rootScope.$apply();
+                    $state.go('login', {}, { reload: true })
+                    // window.location = '/#/login';
                 }
 
                 function logoutErrorFn(data, status, headers, config) {
@@ -795,7 +796,9 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
             function($scope, $rootScope, Authentication, Course, $stateParams, Snackbar) {
                 // var vm = this;
                 var course_id = parseInt($stateParams.id);
-                $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                $rootScope.$watch('currentUser', function(nv, ov) {
+                    $scope.is_authenticated = $rootScope.currentUser;
+                })
                 $scope.course_list = $rootScope.currentUser.course || [];
                 $scope.$watchCollection('course_list', function(nv, ov) {
                     $scope.is_follow = nv.indexOf(course_id) == -1 ? !1 : !0;
@@ -1032,7 +1035,6 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
             var vm = this;
             vm.user = $rootScope.currentUser;
             // vm.user = Authentication.getCurrentUser();
-            vm.is_authenticate = Authentication.isAuthenticatedAccount()
             vm.logout = function() {
                     Authentication.logout();
                 }
@@ -1045,6 +1047,7 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
             }
             $rootScope.$watch('currentUser', function(nv, ov) {
                 vm.user = $rootScope.currentUser;
+                vm.is_authenticate = $rootScope.currentUser;
             })
         }])
 }),define("app", ["angular", "ngAnimate", "uiBootstrapTpls", "layout/app", "authentication/app", "app/account", "app/routes", "app/course", "components/module"], function(angular) {
@@ -1197,6 +1200,7 @@ define("app/account", ["angular", "account/controller/avatar", "account/controll
                         $http.defaults.xsrfHeaderName = 'X-CSRFToken';
                         $http.defaults.xsrfCookieName = 'csrftoken';
                         $rootScope.currentUser = currentUser;
+                        console.log($rootScope.currentUser)
                         Authentication.setCurrentUser(currentUser);
                 }]), angular.bootstrap(document, ["app"])
             })

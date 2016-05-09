@@ -6,7 +6,9 @@ define("course/chapter/contorller", ["angular", "ngSanitize", "authentication/se
             function($scope, $rootScope, Authentication, Course, $stateParams, Snackbar) {
                 // var vm = this;
                 var course_id = parseInt($stateParams.id);
-                $scope.is_authenticated = Authentication.isAuthenticatedAccount();
+                $rootScope.$watch('currentUser', function(nv, ov) {
+                    $scope.is_authenticated = $rootScope.currentUser;
+                })
                 $scope.course_list = $rootScope.currentUser.course || [];
                 $scope.$watchCollection('course_list', function(nv, ov) {
                     $scope.is_follow = nv.indexOf(course_id) == -1 ? !1 : !0;

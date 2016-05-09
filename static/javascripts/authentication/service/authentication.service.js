@@ -1,7 +1,7 @@
 define("authentication/service", ["angular", "ngCookies", "components/snackbar/service"], function(angular) {
     return angular
         .module('app.authentication.services', ['ngCookies'])
-        .factory('Authentication', ['$cookies', '$http', '$q', '$location', '$state', '$window', 'Snackbar', '$timeout', function($cookies, $http, $q, $location, $state, $window, Snackbar, $timeout) {
+        .factory('Authentication', ['$cookies', '$http', '$q', '$location', '$state', '$window', 'Snackbar', '$timeout', '$rootScope', function($cookies, $http, $q, $location, $state, $window, Snackbar, $timeout, $rootScope) {
             var currentUser;
             return {
                 register: register,
@@ -35,6 +35,9 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
             }
 
             function register(email, password, username) {
+                if (!email || !password || !username){
+                    return Snackbar.show('邮箱、用户名、密码无法为空!')
+                }
                 return $http.post('/api/v1/accounts/', {
                     username: username,
                     password: password,
@@ -47,6 +50,7 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
 
                 function registerErrorFn(data, status, headers, config) {
                     console.log('register failed');
+                    Snackbar.show(data.data.message)
                 }
             }
 
@@ -62,9 +66,11 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
                     $timeout(function() {
                         var search = $location.search();
                         var url = search.redirect || '/';
-                        // $state.go('account', {}, { reload: true })
-                        // $state.reload();
-                        window.location = '#/account';
+                        $rootScope.$apply(function(){
+                            $rootScope.currentUser =  data.data;
+                        });
+                        $state.go('account', {}, { reload: true })
+                        // window.location = '/#/account';
                     }, 1000);
                 }
 
@@ -80,8 +86,10 @@ define("authentication/service", ["angular", "ngCookies", "components/snackbar/s
 
                 function logoutSuccessFn(data, status, headers, config) {
                     // unauthenticate();
-                    // $state.go('login', {}, { reload: true })
-                    window.location = '#/login';
+                    $rootScope.currentUser = null;
+                    // $rootScope.$apply();
+                    $state.go('login', {}, { reload: true })
+                    // window.location = '/#/login';
                 }
 
                 function logoutErrorFn(data, status, headers, config) {

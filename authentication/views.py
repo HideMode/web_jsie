@@ -4,7 +4,7 @@ from rest_framework import permissions, viewsets, status, views
 from rest_framework.response import Response
 from django.forms.models import modelform_factory
 from django.contrib.auth.hashers import check_password
-
+from django.db.models import Q
 from authentication.models import Account
 from authentication.permissions import IsAccountOwner
 from authentication.serializers import AccountSerializer
@@ -29,15 +29,27 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
-
+        data = serializer.initial_data
+        if data.get('email', '') and Account.objects.filter(email=data.get('email')).count():
+            return Response({
+            'status': 'Bad request',
+            'message': '邮箱已存在!'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        if data.get('username', '') and Account.objects.filter(username=data.get('username')).count():
+            return Response({
+            'status': 'Bad request',
+            'message': '用户名已存在! '
+            }, status=status.HTTP_400_BAD_REQUEST)
         if serializer.is_valid():
+            data = serializer.validated_data
             Account.objects.create_user(**serializer.validated_data)
 
             return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
 
         return Response({
             'status': 'Bad request',
-            'message': 'Account could not be created with received data.'
+            'message': '用户无法创建.',
+            'errors': serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
@@ -95,7 +107,7 @@ class CurrentUserView(views.APIView):
         else:
             return Response({
                     'status': 'Unauthorized',
-                    'message': '没有登陆，请先登陆!'
+                    'message': '没有登陆，请先登录!'
                 }, status=status.HTTP_401_UNAUTHORIZED)
 
 
